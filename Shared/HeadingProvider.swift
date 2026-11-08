@@ -36,7 +36,12 @@ final class HeadingProvider: NSObject, ObservableObject, CLLocationManagerDelega
     {
         super.init()
         Manager.delegate = self
+        #if os(watchOS)
         Manager.headingFilter = 1
+        #else
+        //The camera view eases between readings, so give it every one.
+        Manager.headingFilter = kCLHeadingFilterNone
+        #endif
         //GPS-grade fixes (onboard, or from the paired iPhone when the watch lacks a fix), delivered
         //each time the user moves 10 m so the radar tracks walking.
         Manager.desiredAccuracy = kCLLocationAccuracyBest

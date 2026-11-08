@@ -19,6 +19,7 @@ struct HUDView: View
     @ObservedObject var Compass: HeadingProvider
     @State private var Camera = CameraModel()
     @State private var Motion = MotionProvider()
+    @State private var Smoother = HeadingSmoother()
     ///The size of the camera area in points, and which way the interface is turned.
     @State private var Size = CGSize.zero
     @State private var Orientation = ScreenOrientation.portrait
@@ -30,10 +31,10 @@ struct HUDView: View
     ///Every place on Earth is in range for the camera: the horizon, not a distance, decides what can be seen.
     static let MaxDistance = 12_742_000.0
 
-    ///What to draw right now.
-    var Frame: HUDMath.Frame
+    ///What to draw right now, for the given (smoothed) device heading.
+    func MakeFrame(Heading: Double) -> HUDMath.Frame
     {
-        HUDMath.MakeFrame(Items: Nearby, DeviceHeading: Compass.Heading, Pull: Motion.Pull, Size: Size,
+        HUDMath.MakeFrame(Items: Nearby, DeviceHeading: Heading, Pull: Motion.Pull, Size: Size,
                           Orientation: Orientation, FieldOfView: Camera.FieldOfView, IsFrontCamera: Camera.IsFront,
                           Locked: Settings.HorizonLocked, UserHeight: Compass.Location?.altitude ?? 0.0,
                           Limit: Settings.HUDMarkerLimit)
@@ -51,9 +52,13 @@ struct HUDView: View
 
     var body: some View
     {
-        let Drawing = Frame
-        ZStack
+        //Redrawn every screen frame so the smoothed heading glides between compass readings.
+        TimelineView(.animation)
         {
+            Timeline in
+            let Drawing = MakeFrame(Heading: Smoother.Value(Target: Compass.Heading, At: Timeline.date))
+            ZStack
+            {
             Color.black
             if Camera.Status == .Running
             {
@@ -96,6 +101,7 @@ struct HUDView: View
                             OnShowRadar: { ShowingRadar = true })
                     .padding(.bottom)
             }
+            }
         }
         .clipped()
         .onGeometryChange(for: CGSize.self)
@@ -105,6 +111,12 @@ struct HUDView: View
         action:
         {
             Size = $0
+            Orientation = ScreenOrientation.Current
+        }
+        .task(id: Size)
+        {
+            //The window's orientation can still be the old one at the instant the size changes, so look again once the turn has settled.
+            try? await Task.sleep(for: .milliseconds(350))
             Orientation = ScreenOrientation.Current
         }
         .task
@@ -150,7 +162,7 @@ struct HUDView: View
             default:
                 break
         }
-        if Frame.Pose == nil
+        if MakeFrame(Heading: Compass.Heading).Pose == nil
         {
             return "Hold the phone upright to see the places."
         }
@@ -230,7 +242,7 @@ struct HUDControls: View
                    action: OnToggleLock)
             Button(IsShowingLocation ? "Hide Location" : "Show Location", systemImage: IsShowingLocation ? "location.fill" : "location",
                    action: OnToggleLocation)
-            Button("Radar", systemImage: "scope", action: OnShowRadar)
+            Button("Radar", systemImage: "target", action: OnShowRadar)
         }
         .labelStyle(.iconOnly)
         .font(.title2)
