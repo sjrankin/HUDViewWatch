@@ -17,6 +17,17 @@ struct HUDMarkerView: View
 
     static let DotSize = 16.0
 
+    ///Far places fade. A body in the sky does not (it is always far), but it does when it is below the horizon, which puts the whole
+    ///Earth between you and it.
+    var Opacity: Double
+    {
+        if let Sky = Item.SkyElevation
+        {
+            return Sky < 0.0 ? 0.55 : 1.0
+        }
+        return HUDMath.Opacity(Distance: Item.Distance)
+    }
+
     var body: some View
     {
         VStack(spacing: 4)
@@ -32,9 +43,13 @@ struct HUDMarkerView: View
                     .foregroundStyle(Item.Place.Kind.MarkerColor)
                 Text(Item.Place.Name)
                     .font(.caption.bold())
-                Text(DistanceFormat.Short(Meters: Item.Distance, Unit: Unit))
-                    .font(.caption2)
-                    .foregroundStyle(.black.opacity(0.8))
+                //A constellation has no distance worth giving.
+                if Item.Place.Kind != .Constellation
+                {
+                    Text(DistanceFormat.Short(Meters: Item.Distance, Unit: Unit))
+                        .font(.caption2)
+                        .foregroundStyle(.black.opacity(0.8))
+                }
                 if IsSelected
                 {
                     HUDMarkerDetails(Item: Item, Unit: Unit)
@@ -53,7 +68,7 @@ struct HUDMarkerView: View
             }
         }
         .fixedSize()
-        .opacity(IsSelected ? 1.0 : HUDMath.Opacity(Distance: Item.Distance))
+        .opacity(IsSelected ? 1.0 : Opacity)
         .animation(.snappy, value: IsSelected)
     }
 }

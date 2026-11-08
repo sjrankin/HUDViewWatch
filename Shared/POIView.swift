@@ -44,12 +44,13 @@ struct POIView: View
     var CardinalScale: Double = 1.1
     ///True to keep every marker inside the outer ring. False lets markers beyond the range be drawn outside it, moving with the zoom.
     var ClampsToRange: Bool = true
-    ///True to draw a pulse around the user's own position (the iPhone; it keeps animating, so the watch leaves it off).
-    var PulsesAtCenter: Bool = false
     ///True to cut off whatever is drawn outside this view's own area (markers outside the outer ring can reach far past the screen).
     var ClipsToView: Bool = false
     ///Weight of the cardinal letters; bold on the watch, heavier on the iPhone.
     var CardinalWeight: Font.Weight = .bold
+    ///The place the pointing mode's arrow points at, or `nil` outside the mode. It is also the only place in `POIs`, and is drawn on the
+    ///outer ring if it lies beyond it.
+    var ArrowTarget: POIFinder.VisiblePOI? = nil
     ///The size of the tap layer, to find the ring center in a tap.
     @State private var TapSize = CGSize.zero
     
@@ -139,6 +140,12 @@ struct POIView: View
                 }
             }
             .rotationEffect(.degrees(NorthAngle))
+            //Over the rings, under the place's circle so the arrow points at it.
+            if let ArrowTarget
+            {
+                RadarArrow(Bearing: ArrowTarget.Bearing, Heading: Heading, Distance: ArrowTarget.Distance,
+                           RangeDistance: RangeDistance, PlotRadius: PlotRadius, IconSize: IconSize)
+            }
             //Markers sit on the same rotating dial as the cardinals but stay upright.
             ZStack
             {
@@ -151,11 +158,11 @@ struct POIView: View
                 }
             }
             .rotationEffect(.degrees(NorthAngle))
-            if PulsesAtCenter
+            //The arrow starts at the center, so the pointing mode leaves the star off.
+            if ArrowTarget == nil
             {
-                PulseRing(Diameter: IconSize * 4, Tint: StarColor)
+                LocationStar(Size: IconSize, StarColor: StarColor)
             }
-            LocationStar(Size: IconSize, StarColor: StarColor)
             //Transparent tap layer over the whole view (markers can lie outside the rings); its local origin is the top-left, so
             //subtract its center, which is the ring center.
             Color.clear

@@ -15,9 +15,13 @@ struct HUDGuideArrowView: View
     let Unit: DistanceUnit
     ///Where the label may be: the label is kept inside it.
     let Bounds: CGRect
+    ///Called when the place's circle is tapped, to stop pointing at the place.
+    let OnDeselect: () -> Void
 
     ///How long the arrow is from tail to tip, in points.
     static let Length = 110.0
+    ///The gap, in points, between the arrow's tip and the place's circle.
+    static let CircleGap = 4.0
     ///The gap between the tail and the label, in points.
     static let LabelGap = 8.0
 
@@ -57,12 +61,34 @@ struct HUDGuideArrowView: View
                 Context.stroke(HUDGuideArrowView.Outline, with: .color(.black.opacity(0.85)),
                                style: StrokeStyle(lineWidth: 2, lineJoin: .round))
             }
+            .allowsHitTesting(false)
+            //The place's circle, as in the normal view, when the place is in view.
+            if let Spot = Arrow.Spot
+            {
+                //Tapping it stops pointing at the place; the touch area is bigger than the circle.
+                Button(action: OnDeselect)
+                {
+                    Circle()
+                        .fill(Arrow.Kind.MarkerColor)
+                        .frame(width: HUDMarkerView.DotSize, height: HUDMarkerView.DotSize)
+                        .overlay { Circle().stroke(.white, lineWidth: 2) }
+                        .shadow(color: .black.opacity(0.5), radius: 3)
+                        .frame(width: HUDMarkerView.DotSize * 3, height: HUDMarkerView.DotSize * 3)
+                        .contentShape(.circle)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Stop tracking \(Arrow.Name)")
+                .position(Spot)
+            }
             VStack(spacing: 2)
             {
                 Text(Arrow.Name)
                     .font(.caption.bold())
-                Text(DistanceFormat.Short(Meters: Arrow.Distance, Unit: Unit))
-                    .font(.caption2)
+                if Arrow.Kind != .Constellation
+                {
+                    Text(DistanceFormat.Short(Meters: Arrow.Distance, Unit: Unit))
+                        .font(.caption2)
+                }
             }
             .foregroundStyle(.black)
             .padding(.horizontal, 8)
@@ -85,8 +111,8 @@ struct HUDGuideArrowView: View
             .position(LabelCenter)
             //Not shown until measured, so it does not jump from the wrong place.
             .opacity(LabelSize == .zero ? 0.0 : 1.0)
+            .allowsHitTesting(false)
         }
-        .allowsHitTesting(false)
     }
 
     ///Where the middle of the label goes: behind the arrow's tail, as far back as it takes for the label to clear it, and then kept

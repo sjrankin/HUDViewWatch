@@ -100,6 +100,21 @@ struct SettingsView: View
                 {
                     Text("The camera view shows the nearest places in view, up to this many. Locking the horizon holds the line level and puts every place on it.")
                 }
+                Section
+                {
+                    Toggle("Show Sun and Moon", isOn: $Bound.ShowSunMoon)
+                    Toggle("Show zodiac constellations", isOn: $Bound.ShowZodiac)
+                    Toggle("Show other constellations", isOn: $Bound.ShowOtherConstellations)
+                    Toggle("Show galaxies", isOn: $Bound.ShowGalaxies)
+                }
+                header:
+                {
+                    Text("Sky")
+                }
+                footer:
+                {
+                    Text("Shows them on the camera view like places, from the time and where you are. Below the horizon they are faded: you would be looking through the Earth. A constellation is marked at its middle. Other constellations: Carina, Ophiuchus, Orion, the Big Dipper, the Little Dipper and the Southern Cross. Galaxies: Andromeda and the Large and Small Magellanic Clouds.")
+                }
                 Section("Apple Watch")
                 {
                     Text(Link.Status)

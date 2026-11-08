@@ -14,6 +14,8 @@ import Observation
 final class PlaceSelection
 {
     var SelectedID: UUID? = nil
+    ///True when the pointer mode is on, for the camera view and the radar alike: turning it on in one turns it on in the other.
+    var IsPointing = false
 
     ///Selects a place, or clears the selection if it is the one already selected.
     func Toggle(_ ID: UUID)

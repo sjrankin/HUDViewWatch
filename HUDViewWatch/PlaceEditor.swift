@@ -45,7 +45,7 @@ struct PlaceEditor: View
                     TextField("Name", text: $Draft.Name)
                     Picker("Type", selection: $Draft.Kind)
                     {
-                        ForEach(POIType.allCases)
+                        ForEach(POIType.UserChoices)
                         {
                             Kind in
                             Label(Kind.rawValue, systemImage: Kind.Icon)

@@ -23,6 +23,8 @@ struct ReadoutView: View
     var Unit: DistanceUnit = .Metric
     ///True to show the current heading in whole degrees, in the same spot, when no place is selected (the watch).
     var ShowsHeading: Bool = false
+    ///When given, shown in place of the heading while no place is selected (the pointing mode asks for a place this way).
+    var Hint: String? = nil
     ///When given, shown while no place is selected: how many places are inside the radar's range (the iPhone).
     var PlaceCount: Int? = nil
 
@@ -53,6 +55,14 @@ struct ReadoutView: View
             else if ShowDebugStatus
             {
                 StatusLine(Compass: Compass)
+            }
+            else if let Hint
+            {
+                Text(Hint)
+                    .font(Large ? .title3 : .caption)
+                    .bold()
+                    .foregroundStyle(.yellow)
+                    .lineLimit(2)
             }
             else if let PlaceCount
             {

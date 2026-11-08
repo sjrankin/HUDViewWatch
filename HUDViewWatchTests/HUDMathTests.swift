@@ -71,10 +71,31 @@ struct HUDMathTests
         #expect(abs(Pose?.Pitch ?? 1) < 0.001)
     }
 
-    @Test func AFlatPhoneHasNoHorizon()
+    @Test func APlaceStraightBelowAFlatPhoneIsStillDrawn()
+    {
+        //Face-up and flat, the back camera looks straight down. A place far below the level (its elevation is hugely negative) is
+        //right under it, so it falls in the middle of the view.
+        let Below = Item("Below", Distance: 1000, Bearing: 0, Elevation: -10_000_000)
+        let Frame = HUDMath.MakeFrame(Items: [Below], DeviceHeading: 0, Pull: Gravity(X: 0, Y: 0, Z: -1), Size: Size,
+                                      Orientation: .portrait, FieldOfView: FieldOfView, IsFrontCamera: false, Locked: false,
+                                      UserHeight: 0, Limit: 20)
+        #expect(Frame.Pose != nil)
+        #expect(Frame.Placements.count == 1)
+        if let Point = Frame.Placements.first?.Point
+        {
+            #expect(abs(Double(Point.x) - 200) < 5)
+            #expect(abs(Double(Point.y) - 400) < 5)
+        }
+    }
+
+    @Test func AFlatPhoneStillHasAPose()
     {
         let Flat = Gravity(X: 0, Y: 0, Z: -1)
-        #expect(HUDMath.Pose(Pull: Flat, Size: Size, Orientation: .portrait, FieldOfView: FieldOfView) == nil)
+        let Pose = HUDMath.Pose(Pull: Flat, Size: Size, Orientation: .portrait, FieldOfView: FieldOfView)
+        //Flat: still a pose, with the camera looking straight down (or up) and no roll.
+        #expect(Pose != nil)
+        #expect(Pose.map { abs(abs($0.Pitch) - .pi / 2) < 0.001 } == true)
+        #expect(Pose?.Angle == 0)
     }
 
     @Test func LockingHoldsTheHorizonInTheMiddleWhateverTheTilt()
@@ -118,6 +139,55 @@ struct HUDMathTests
         #expect(Point != nil)
         #expect(abs((Point?.x ?? 0) - 200) < 0.001)
         #expect(abs((Point?.y ?? 0) - 400) < 0.001)
+    }
+
+    @Test func ThePointOppositeTheEarthIsStraightDown()
+    {
+        let Opposite = Double.pi * HUDMath.EarthRadius
+        #expect(abs(HUDMath.ElevationAngle(PointHeight: 0, UserHeight: 0, Distance: Opposite) + 90) < 0.01)
+    }
+
+    @Test func FarPlacesAreBelowTheLevelByHalfTheArc()
+    {
+        //8,000 km away: half of 8000 / 6371 radians is about 35.97 degrees.
+        let Angle = HUDMath.ElevationAngle(PointHeight: 0, UserHeight: 0, Distance: 8_000_000)
+        #expect(abs(Angle + 35.97) < 0.05)
+    }
+
+    @Test func TheHUDLimitsNoDistance()
+    {
+        #expect(HUDView.MaxDistance > Double.pi * HUDMath.EarthRadius)
+    }
+
+    @Test func AFarSidePlaceIsDrawnWhenTheCameraLooksDownAtIt()
+    {
+        let Far = Item("Far side", Distance: 14_660_000, Bearing: 0)
+        let Down = HUDMath.ElevationAngle(PointHeight: 0, UserHeight: 0, Distance: 14_660_000)
+        #expect(Down < -60)
+        //Tip the camera down by exactly that much: the place falls in the middle of the view.
+        let Pitch = Down * .pi / 180
+        let Frame = HUDMath.MakeFrame(Items: [Far], DeviceHeading: 0, Pull: Gravity(X: 0, Y: -cos(Pitch), Z: sin(Pitch)), Size: Size,
+                                      Orientation: .portrait, FieldOfView: FieldOfView, IsFrontCamera: false, Locked: false,
+                                      UserHeight: 0, Limit: 20)
+        #expect(Frame.Placements.count == 1)
+        if let Point = Frame.Placements.first?.Point
+        {
+            #expect(abs(Double(Point.x) - 200) < 3)
+            #expect(abs(Double(Point.y) - 400) < 3)
+        }
+    }
+
+    @Test func AWiderLensShowsPlacesFartherToTheSide()
+    {
+        //A place 45° to the right: outside the ordinary lens's picture, but inside the ultra-wide lens's.
+        let Place = Item("Side", Distance: 1000, Bearing: 45)
+        func Shown(FieldOfView Wide: Double) -> Int
+        {
+            HUDMath.MakeFrame(Items: [Place], DeviceHeading: 0, Pull: .Upright, Size: Size, Orientation: .portrait,
+                              FieldOfView: Wide, IsFrontCamera: false, Locked: true, UserHeight: 0, Limit: 20).Placements.count
+        }
+        #expect(Shown(FieldOfView: 63) == 0)
+        #expect(Shown(FieldOfView: 120) == 1)
     }
 
     @Test func ToTheRightProjectsToTheRightAndAboveProjectsHigher()
@@ -207,7 +277,13 @@ struct HUDMathTests
             .Placements.first?.Point
         let Found = Arrow(For: Place, Locked: true)
         #expect(Found?.IsOffScreen == false)
-        #expect(Found?.Tip == Marker)
+        //The circle is where the marker would be, and the tip stops one clearance short of it.
+        #expect(Found?.Spot == Marker)
+        if let Found, let Spot = Found.Spot
+        {
+            let Gap = hypot(Double(Spot.x - Found.Tip.x), Double(Spot.y - Found.Tip.y))
+            #expect(abs(Gap - 12.0) < 0.001)
+        }
     }
 
     @Test func ANearlyCenteredTargetIsPointedDownAt()
@@ -221,6 +297,7 @@ struct HUDMathTests
     {
         let Found = Arrow(For: Item("A", Distance: 1000, Bearing: 60))
         #expect(Found?.IsOffScreen == true)
+        #expect(Found?.Spot == nil)
         #expect(Found.map { abs(Double($0.Tip.x) - 370) < 0.001 } == true)
         #expect(Found.map { $0.Direction.x > 0.9 } == true)
     }
@@ -246,13 +323,13 @@ struct HUDMathTests
         let Bounds = CGRect(x: 30, y: 110, width: 340, height: 580)
         let Label = CGSize(width: 100, height: 40)
         //Pointing right from the middle: the label is to the left of the tail.
-        let Level = HUDMath.GuideArrow(Tip: CGPoint(x: 300, y: 400), Direction: CGPoint(x: 1, y: 0), IsOffScreen: false,
+        let Level = HUDMath.GuideArrow(Tip: CGPoint(x: 300, y: 400), Spot: nil, Kind: .Test, Direction: CGPoint(x: 1, y: 0), IsOffScreen: false,
                                        Name: "A", Distance: 1)
         let Left = HUDGuideArrowView.LabelCenter(Arrow: Level, LabelSize: Label, Bounds: Bounds)
         #expect(Left.y == 400)
         #expect(Left.x + 50 < 300 - HUDGuideArrowView.Length)
         //Pointing right at the edge, far to the left: it would run off, so it is held at the bounds.
-        let Edge = HUDMath.GuideArrow(Tip: CGPoint(x: 120, y: 400), Direction: CGPoint(x: 1, y: 0), IsOffScreen: true,
+        let Edge = HUDMath.GuideArrow(Tip: CGPoint(x: 120, y: 400), Spot: nil, Kind: .Test, Direction: CGPoint(x: 1, y: 0), IsOffScreen: true,
                                       Name: "A", Distance: 1)
         let Held = HUDGuideArrowView.LabelCenter(Arrow: Edge, LabelSize: Label, Bounds: Bounds)
         #expect(Held.x == Bounds.minX + 50)

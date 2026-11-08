@@ -91,10 +91,27 @@ enum POIType: String, CaseIterable, Codable, Identifiable
     case Volcano
     case River
     case Test
+    //Things in the sky, shown on the iPhone's camera view only. They are not kinds a place can be given.
+    case Sun
+    case Moon
+    case Constellation
+    case Galaxy
 
     var id: String
     {
         rawValue
+    }
+
+    ///True for the Sun, the Moon, the constellations and the galaxies.
+    var IsCelestial: Bool
+    {
+        self == .Sun || self == .Moon || self == .Constellation || self == .Galaxy
+    }
+
+    ///The kinds a user can give a place of their own.
+    static var UserChoices: [POIType]
+    {
+        allCases.filter { $0.IsCelestial == false }
     }
 
     ///SF Symbol drawn inside the marker.
@@ -122,6 +139,19 @@ enum POIType: String, CaseIterable, Codable, Identifiable
 
             case .Test:
                 return "circle.and.line.horizontal"
+
+            case .Sun:
+                return "sun.max.fill"
+
+            case .Moon:
+                return "moon.fill"
+
+            case .Constellation:
+                return "sparkles"
+
+            case .Galaxy:
+                //A spiral, the nearest thing the symbol set has to one.
+                return "hurricane"
         }
     }
 
@@ -146,6 +176,19 @@ enum POIType: String, CaseIterable, Codable, Identifiable
 
             case .Test:
                 return .purple
+
+            case .Sun:
+                //Deeper than yellow, which is too bright on the white cards; a little lighter than the orange of the cities.
+                return Color(red: 1.0, green: 0.62, blue: 0.1)
+
+            case .Moon:
+                return Color(white: 0.8)
+
+            case .Constellation:
+                return .teal
+
+            case .Galaxy:
+                return Color(red: 0.72, green: 0.55, blue: 1.0)
         }
     }
 }

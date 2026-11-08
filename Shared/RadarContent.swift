@@ -29,8 +29,8 @@ struct RadarContent: View
     var CropToRange: Bool = true
     ///True to cut off markers at the edges of the radar's area (so they never reach the status bar, readout or slider).
     var ClipsToView: Bool = false
-    ///True to draw a pulse at the center of the radar (the iPhone).
-    var PulsesAtCenter: Bool = false
+    ///True for the pointing mode: when a place is selected, only that place is drawn, with an arrow from the center to it.
+    var IsPointing: Bool = false
     ///True to show how many places are in range, below the radar, when none is selected (the iPhone).
     var ShowsCount: Bool = false
     ///The ids of the places the user created or edited. When markers crowd each other these are kept ahead of the built-in places.
@@ -130,10 +130,25 @@ struct RadarContent: View
         return ((Gap * RingCount) / 2) * 1.1 + NLabelOffset
     }
 
+    ///The place the arrow points at: the selected place, in the pointing mode, if it is among the nearby places.
+    var PointTarget: POIFinder.VisiblePOI?
+    {
+        guard IsPointing, let SelectedID else
+        {
+            return nil
+        }
+        return NearbyPOIs.first { $0.id == SelectedID }
+    }
+
     ///POIs to draw: within the current range (when cropping), thinned out so markers do not overlap. The user's own places and the
     ///selected place win over the rest; see `RadarDeclutter`.
     var PlottedPOIs: [POIFinder.VisiblePOI]
     {
+        //Pointing: just the chosen place, whatever its distance.
+        if let PointTarget
+        {
+            return [PointTarget]
+        }
         let InRange = NearbyPOIs.filter
         {
             CropToRange == false || $0.Distance <= RangeDistance
@@ -178,7 +193,11 @@ struct RadarContent: View
                     RangeDistance: RangeDistance,
                     RingLabelColor: RingLabelColor,
                     SelectedID: SelectedID,
-                    OnSelect: { SelectedID = $0?.id },
+                    OnSelect:
+                    {
+                        SelectedID = PointingSelection.AfterTap(Current: SelectedID, Picked: $0?.id, IsPointing: IsPointing,
+                                                                HasTarget: PointTarget != nil)
+                    },
                     TapRadius: TapRadius,
                     StarColor: StarColor,
                     Heading: Compass.Heading,
@@ -190,17 +209,17 @@ struct RadarContent: View
                     CenterColor: CenterColor,
                     Unit: Unit,
                     FontScale: Scale,
-                    ClampsToRange: CropToRange,
-                    PulsesAtCenter: PulsesAtCenter,
+                    ClampsToRange: CropToRange || PointTarget != nil,
                     ClipsToView: ClipsToView,
-                    CardinalWeight: CardinalWeight)
+                    CardinalWeight: CardinalWeight,
+                    ArrowTarget: PointTarget)
             //Offset rather than padding: the radar moves by the full amount and the readout below stays put.
             .offset(y: TopInset)
             //Room for two lines of text below the radar.
             if ReadoutInCorner == false
             {
                 ReadoutView(Selected: SelectedPOI, ShowDebugStatus: ShowDebugStatus, Compass: Compass, Large: Scale > 1, Unit: Unit,
-                            PlaceCount: ShowsCount ? InRangeCount : nil)
+                            Hint: IsPointing ? PointingSelection.Hint : nil, PlaceCount: ShowsCount ? InRangeCount : nil)
                     .frame(height: ReadoutHeight)
             }
         }
@@ -209,7 +228,8 @@ struct RadarContent: View
             if ReadoutInCorner
             {
                 //Narrow enough to stay clear of the clock and battery indicator at the upper right.
-                ReadoutView(Selected: SelectedPOI, ShowDebugStatus: ShowDebugStatus, Compass: Compass, InCorner: true, Unit: Unit, ShowsHeading: true)
+                ReadoutView(Selected: SelectedPOI, ShowDebugStatus: ShowDebugStatus, Compass: Compass, InCorner: true, Unit: Unit,
+                            ShowsHeading: true, Hint: IsPointing ? PointingSelection.Hint : nil)
                     .containerRelativeFrame(.horizontal) { Width, _ in Width * 0.55 }
                     .fixedSize(horizontal: false, vertical: true)
                     //A little in from the left edge, and down from the very top so the first line is level with the clock.
@@ -223,6 +243,15 @@ struct RadarContent: View
         {
             Compass.Start()
             Refresh()
+        }
+        .onChange(of: IsPointing)
+        {
+            Was, Now in
+            //Leaving the pointing mode forgets the place: it has to be chosen again the next time.
+            if Was && Now == false
+            {
+                SelectedID = nil
+            }
         }
         .onChange(of: Compass.Location)
         {

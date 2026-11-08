@@ -23,15 +23,25 @@ struct HUDMarkerDetails: View
                 Text(Note)
                     .italic()
             }
-            Text(Item.Place.Kind.rawValue)
-            Text("Bearing \(HeadingFormat.Degrees(Item.Bearing)) \(HUDMath.DirectionName(Item.Bearing))")
-            if let Height = Item.Place.Elevation
+            if let Sky = Item.SkyElevation
             {
-                Text("Elevation \(HUDMarkerDetails.Height(Meters: Height, Unit: Unit))")
+                //Something in the sky: which way, and how high.
+                Text("Direction \(HeadingFormat.Degrees(Item.Bearing)) \(HUDMath.DirectionName(Item.Bearing))")
+                let Height = Int(abs(Sky).rounded())
+                Text(Sky < 0.0 ? "\(Height)° below the horizon" : "\(Height)° above the horizon")
             }
-            if let Population = Item.Place.Population
+            else
             {
-                Text("Population \(Population, format: .number)")
+                Text(Item.Place.Kind.rawValue)
+                Text("Bearing \(HeadingFormat.Degrees(Item.Bearing)) \(HUDMath.DirectionName(Item.Bearing))")
+                if let Height = Item.Place.Elevation
+                {
+                    Text("Elevation \(HUDMarkerDetails.Height(Meters: Height, Unit: Unit))")
+                }
+                if let Population = Item.Place.Population
+                {
+                    Text("Population \(Population, format: .number)")
+                }
             }
         }
         .font(.caption2)

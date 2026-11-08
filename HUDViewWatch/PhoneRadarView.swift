@@ -24,6 +24,9 @@ struct PhoneRadarView: View
     ///The zoom when the current pinch began; `nil` between pinches.
     @State private var PinchStart: Double? = nil
 
+    ///The width and height of the pointer toggle, in points.
+    private static let ToggleSize = 52.0
+
     ///Half the radar's width in units of Scale: the outer ring is 80, the cardinal letters 96 from the center and about 6 across.
     private static let ExtentPerScale = 204.0
     ///The height the radar needs in units of Scale: its width plus the readout band under it (36).
@@ -44,13 +47,22 @@ struct PhoneRadarView: View
         VStack(spacing: 0)
         {
             RadarContent(Places: Store.Visible, Compass: Compass, Zoom: $Zoom, Scale: FittedScale,
-                         CropToRange: Settings.CropToRange, PulsesAtCenter: true, ShowsCount: true, UserPlaceIDs: Set(Store.Custom.map(\.id)), Unit: Settings.Unit, CardinalWeight: .heavy,
+                         CropToRange: Settings.CropToRange, IsPointing: Selection.IsPointing, ShowsCount: true, UserPlaceIDs: Set(Store.Custom.map(\.id)), Unit: Settings.Unit, CardinalWeight: .heavy,
                          MaxDistance: Settings.MaxDistance,
                          BackgroundColor: PhoneRadarView.Background, CardinalColor: Color(red: 1, green: 1, blue: 0),
                          SharedSelection: Binding(get: { Selection.SelectedID }, set: { Selection.SelectedID = $0 }))
                 //Markers outside the rings are cut off at the status bar above and just above the slider below. This region runs
                 //from the bottom of the status bar to the top of the slider bar, so it includes the band where the annotation appears.
                 .clipped()
+                //The same toggle as on the watch, in the lower-right corner of the radar.
+                .overlay(alignment: .bottomTrailing)
+                {
+                    PointingToggle(IsOn: Binding(get: { Selection.IsPointing }, set: { Selection.IsPointing = $0 }),
+                                   Size: PhoneRadarView.ToggleSize)
+                        .padding()
+                        //Above the band under the radar where the selected place's name and distance appear.
+                        .padding(.bottom, 40 * FittedScale)
+                }
                 .onGeometryChange(for: CGSize.self)
                 {
                     $0.size

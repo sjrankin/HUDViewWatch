@@ -17,11 +17,26 @@ final class CaptureSession: @unchecked Sendable
     let Session = AVCaptureSession()
     private var CurrentInput: AVCaptureDeviceInput?
 
-    ///Chooses the camera. Returns its field of view in degrees along the long side of its picture, or `nil` when there is no such camera
-    ///(the Simulator has none).
-    func Use(_ Position: AVCaptureDevice.Position) -> Double?
+    ///The camera that was chosen: its field of view in degrees along the long side of its picture, and whether it is the ultra-wide one.
+    struct Choice: Sendable
     {
-        guard let Device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: Position),
+        var FieldOfView: Double
+        var IsWide: Bool
+    }
+
+    ///Whether this phone has an ultra-wide back camera (the 0.5× one).
+    static var HasUltraWide: Bool
+    {
+        AVCaptureDevice.default(.builtInUltraWideCamera, for: .video, position: .back) != nil
+    }
+
+    ///Chooses the camera, or `nil` when there is no such camera (the Simulator has none).
+    ///- Parameter Wide: True for the back camera's ultra-wide lens. The ordinary lens is used when there is none, or for the selfie camera.
+    func Use(_ Position: AVCaptureDevice.Position, Wide: Bool = false) -> Choice?
+    {
+        let WantsWide = Wide && Position == .back
+        let Ultra = WantsWide ? AVCaptureDevice.default(.builtInUltraWideCamera, for: .video, position: .back) : nil
+        guard let Device = Ultra ?? AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: Position),
               let NewInput = try? AVCaptureDeviceInput(device: Device) else
         {
             return nil
@@ -41,7 +56,8 @@ final class CaptureSession: @unchecked Sendable
             Session.addInput(Old)
         }
         Session.commitConfiguration()
-        return Double(Device.activeFormat.videoFieldOfView)
+        //The field of view is the lens's own: the ultra-wide one is about twice as wide, which is what spreads the places out.
+        return Choice(FieldOfView: Double(Device.activeFormat.videoFieldOfView), IsWide: Ultra != nil)
     }
 
     func Run()
@@ -82,6 +98,12 @@ final class CameraModel
     ///The camera's field of view in degrees along the long side of its picture. Phones' main cameras are near 63°.
     private(set) var FieldOfView = 63.0
     private(set) var IsFront = false
+    ///True while the ultra-wide (0.5×) lens is in use.
+    private(set) var IsWide = false
+    ///True if the user wants the wide view whenever the back camera is in use (it is not used for the selfie camera).
+    private var PrefersWide = false
+    ///True if this phone has an ultra-wide camera to offer.
+    let CanUseWide = CaptureSession.HasUltraWide
 
     @ObservationIgnored
     let Capture = CaptureSession()
@@ -112,13 +134,25 @@ final class CameraModel
         await Choose(IsFront ? .back : .front)
     }
 
+    ///Switches the back camera between its ordinary lens (1×) and its ultra-wide one (0.5×).
+    func ToggleWide() async
+    {
+        guard CanUseWide, IsFront == false else
+        {
+            return
+        }
+        PrefersWide.toggle()
+        await Choose(.back)
+    }
+
     private func Choose(_ Position: AVCaptureDevice.Position) async
     {
         let Running = Capture
+        let Wide = PrefersWide
         let Found = await Task.detached
         {
-            () -> Double? in
-            let Result = Running.Use(Position)
+            () -> CaptureSession.Choice? in
+            let Result = Running.Use(Position, Wide: Wide)
             if Result != nil
             {
                 Running.Run()
@@ -130,7 +164,8 @@ final class CameraModel
             Status = .Unavailable
             return
         }
-        FieldOfView = Found
+        FieldOfView = Found.FieldOfView
+        IsWide = Found.IsWide
         IsFront = Position == .front
         Status = .Running
     }

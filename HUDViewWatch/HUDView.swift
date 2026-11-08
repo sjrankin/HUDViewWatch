@@ -26,20 +26,33 @@ struct HUDView: View
     ///Every visible place with its distance and bearing from the last fix.
     @State private var Nearby: [POIFinder.VisiblePOI] = []
     @State private var ShowingLocation = false
-    ///True to hide the markers and point an arrow at the selected place instead.
-    @State private var IsPointing = false
 
-    ///Every place on Earth is in range for the camera: the horizon, not a distance, decides what can be seen.
-    static let MaxDistance = 12_742_000.0
+    ///Every place on Earth is in range for the camera. Nothing is more than half way round the Earth (about 20,000 km) from you, so
+    ///no distance limit is applied: which places can be seen is decided by where the camera points.
+    static let MaxDistance = Double.infinity
+
+    ///The Sun, the Moon and the constellations the user has asked for, as they are in the sky at `Time`.
+    func SkyItems(At Time: Date) -> [POIFinder.VisiblePOI]
+    {
+        guard let Here = Compass.Location,
+              Settings.ShowSunMoon || Settings.ShowZodiac || Settings.ShowOtherConstellations || Settings.ShowGalaxies else
+        {
+            return []
+        }
+        return SkyObjects.Visible(At: Time, Latitude: Here.coordinate.latitude, Longitude: Here.coordinate.longitude,
+                                  ShowSunMoon: Settings.ShowSunMoon, ShowZodiac: Settings.ShowZodiac,
+                                  ShowOthers: Settings.ShowOtherConstellations, ShowGalaxies: Settings.ShowGalaxies)
+    }
 
     ///What to draw right now, for the given (smoothed) device heading.
-    func MakeFrame(Heading: Double) -> HUDMath.Frame
+    func MakeFrame(Heading: Double, Time: Date) -> HUDMath.Frame
     {
-        HUDMath.MakeFrame(Items: Nearby, DeviceHeading: Heading, Pull: Motion.Pull, Size: Size,
+        HUDMath.MakeFrame(Items: Nearby + SkyItems(At: Time), DeviceHeading: Heading, Pull: Motion.Pull, Size: Size,
                           Orientation: Orientation, FieldOfView: Camera.FieldOfView, IsFrontCamera: Camera.IsFront,
                           Locked: Settings.HorizonLocked, UserHeight: Compass.Location?.altitude ?? 0.0,
-                          Limit: Settings.HUDMarkerLimit, GuideTarget: IsPointing ? Selection.SelectedID : nil,
-                          GuideArea: HUDView.GuideArea(In: Size))
+                          Limit: Settings.HUDMarkerLimit, GuideTarget: Selection.IsPointing ? Selection.SelectedID : nil,
+                          GuideArea: HUDView.GuideArea(In: Size),
+                          GuideClearance: HUDMarkerView.DotSize / 2.0 + HUDGuideArrowView.CircleGap)
     }
 
     ///Where an arrow's tip can be seen: clear of the compass bar and heading above, and the buttons below.
@@ -50,6 +63,15 @@ struct HUDView: View
         let Bottom = 110.0
         let Area = CGRect(x: Side, y: Top, width: Size.width - Side * 2.0, height: Size.height - Top - Bottom)
         return Area.width > 0 && Area.height > 0 ? Area : CGRect(origin: .zero, size: Size)
+    }
+
+    ///Clears the selection if it is something in the sky that has just been switched off.
+    func ForgetSkySelection()
+    {
+        if let Chosen = Selection.SelectedID, SkyObjects.AllIDs.contains(Chosen)
+        {
+            Selection.SelectedID = nil
+        }
     }
 
     func Refresh()
@@ -68,7 +90,7 @@ struct HUDView: View
         TimelineView(.animation)
         {
             Timeline in
-            let Drawing = MakeFrame(Heading: Smoother.Value(Target: Compass.Heading, At: Timeline.date))
+            let Drawing = MakeFrame(Heading: Smoother.Value(Target: Compass.Heading, At: Timeline.date), Time: Timeline.date)
             ZStack
             {
             Color.black
@@ -77,7 +99,15 @@ struct HUDView: View
                 CameraPreview(Session: Camera.Capture.Session, Orientation: Orientation, IsFrontCamera: Camera.IsFront)
             }
             HUDOverlay(Frame: Drawing, Unit: Settings.Unit, SelectedID: Selection.SelectedID, Area: Size,
-                       OnSelect: { Selection.Toggle($0) }, OnClear: { Selection.SelectedID = nil })
+                       OnSelect: { Selection.Toggle($0) }, OnClear:
+                       {
+                           //With an arrow showing, a stray tap leaves it alone; the target's own circle clears it.
+                           if Drawing.Arrow == nil
+                           {
+                               Selection.SelectedID = nil
+                           }
+                       },
+                       OnDeselect: { Selection.SelectedID = nil })
             VStack
             {
                 CompassBarView(Heading: Drawing.Facing)
@@ -107,11 +137,12 @@ struct HUDView: View
                     }
                 }
                 HUDControls(IsFront: Camera.IsFront, IsLocked: Settings.HorizonLocked, IsShowingLocation: ShowingLocation,
-                            IsPointing: IsPointing,
+                            IsPointing: Selection.IsPointing, IsWide: Camera.IsWide, CanUseWide: Camera.CanUseWide,
                             OnSwitchCamera: { Task { await Camera.SwitchCamera() } },
+                            OnToggleWide: { Task { await Camera.ToggleWide() } },
                             OnToggleLock: { Settings.HorizonLocked.toggle() },
                             OnToggleLocation: { ShowingLocation.toggle() },
-                            OnTogglePointing: { IsPointing.toggle() })
+                            OnTogglePointing: { Selection.IsPointing.toggle() })
                     .padding(.bottom)
             }
             }
@@ -147,6 +178,31 @@ struct HUDView: View
             Motion.Stop()
             Camera.Stop()
         }
+        .onChange(of: Selection.IsPointing)
+        {
+            Was, Now in
+            //Leaving the pointing mode forgets the place (here and on the radar, which share it): it has to be chosen again.
+            if Was && Now == false
+            {
+                Selection.SelectedID = nil
+            }
+        }
+        .onChange(of: Settings.ShowSunMoon)
+        {
+            ForgetSkySelection()
+        }
+        .onChange(of: Settings.ShowZodiac)
+        {
+            ForgetSkySelection()
+        }
+        .onChange(of: Settings.ShowOtherConstellations)
+        {
+            ForgetSkySelection()
+        }
+        .onChange(of: Settings.ShowGalaxies)
+        {
+            ForgetSkySelection()
+        }
         .onChange(of: Compass.Location)
         {
             Refresh()
@@ -171,13 +227,9 @@ struct HUDView: View
             default:
                 break
         }
-        if MakeFrame(Heading: Compass.Heading).Pose == nil
+        if Selection.IsPointing && Selection.SelectedID == nil
         {
-            return "Hold the phone upright to see the places."
-        }
-        if IsPointing && Selection.SelectedID == nil
-        {
-            return "Tap a place to point an arrow at it."
+            return PointingSelection.Hint
         }
         return nil
     }
@@ -194,6 +246,8 @@ struct HUDOverlay: View
     let OnSelect: (UUID) -> Void
     ///Called when the user taps where there is no place.
     let OnClear: () -> Void
+    ///Called when the user taps the circle of the place the arrow points at.
+    let OnDeselect: () -> Void
 
     var body: some View
     {
@@ -233,7 +287,7 @@ struct HUDOverlay: View
             }
             if let Arrow = Frame.Arrow
             {
-                HUDGuideArrowView(Arrow: Arrow, Unit: Unit, Bounds: HUDView.GuideArea(In: Area))
+                HUDGuideArrowView(Arrow: Arrow, Unit: Unit, Bounds: HUDView.GuideArea(In: Area), OnDeselect: OnDeselect)
                     .zIndex(2.0)
             }
         }
@@ -247,7 +301,10 @@ struct HUDControls: View
     let IsLocked: Bool
     let IsShowingLocation: Bool
     let IsPointing: Bool
+    let IsWide: Bool
+    let CanUseWide: Bool
     let OnSwitchCamera: () -> Void
+    let OnToggleWide: () -> Void
     let OnToggleLock: () -> Void
     let OnToggleLocation: () -> Void
     let OnTogglePointing: () -> Void
@@ -258,12 +315,27 @@ struct HUDControls: View
         {
             Button(IsFront ? "Use Back Camera" : "Use Selfie Camera", systemImage: "arrow.triangle.2.circlepath.camera",
                    action: OnSwitchCamera)
+            //Not for the selfie camera, which has no wide lens. Dimmed on a phone without an ultra-wide camera.
+            if IsFront == false
+            {
+                Button(action: OnToggleWide)
+                {
+                    Text(IsWide ? "0.5×" : "1×")
+                        .font(.headline.bold())
+                        .monospacedDigit()
+                }
+                .disabled(CanUseWide == false)
+                .accessibilityLabel(IsWide ? "Standard view, 1 times" : "Wide view, 0.5 times")
+            }
             Button(IsLocked ? "Unlock Horizon" : "Lock Horizon", systemImage: IsLocked ? "lock.fill" : "lock.open",
                    action: OnToggleLock)
             Button(IsShowingLocation ? "Hide Location" : "Show Location", systemImage: IsShowingLocation ? "location.fill" : "location",
                    action: OnToggleLocation)
-            Button(IsPointing ? "Show Places" : "Point to Selected Place",
-                   systemImage: IsPointing ? "arrow.up.forward.circle.fill" : "arrow.up.forward.circle", action: OnTogglePointing)
+            //One label whichever way it is set; VoiceOver adds whether it is on.
+            Button("Track Selected Place", systemImage: IsPointing ? "arrow.up.forward.circle.fill" : "arrow.up.forward.circle",
+                   action: OnTogglePointing)
+                .accessibilityValue(IsPointing ? "On" : "Off")
+                .accessibilityAddTraits(.isToggle)
         }
         .labelStyle(.iconOnly)
         .font(.title2)

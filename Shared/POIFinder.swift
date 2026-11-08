@@ -19,6 +19,15 @@ struct POIFinder
         let Distance: Double
         ///Degrees clockwise from true north (0 ... 360).
         let Bearing: Double
+        ///For something in the sky: how many degrees above the horizon it is (negative below it). It then has a direction of its own, and
+        ///`Distance` and the place's elevation are not used to find it. `nil` for a place on the ground.
+        var SkyElevation: Double? = nil
+
+        ///True for the Sun, the Moon and the constellations.
+        var IsSky: Bool
+        {
+            SkyElevation != nil
+        }
 
         var id: UUID
         {

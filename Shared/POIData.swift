@@ -73,6 +73,9 @@ struct NorthernCaliforniaData
         POI(Name: "Mount Whitney", Latitude: 36.5785, Longitude: -118.2923, Kind: .Mountain, Elevation: 4_421),
         POI(Name: "Pyramid Peak", Latitude: 38.8450, Longitude: -120.1578, Kind: .Mountain, Elevation: 3_043),
         POI(Name: "富士山", Latitude: 35.35806, Longitude: 138.73, Kind: .Mountain, Elevation: 3_776),
+        //The exact antipode of Stockton (37.9577, -121.2908): the opposite latitude, and the longitude half a turn round. From Stockton it
+        //lies straight down, 20,015 km away.
+        POI(Name: "Static Antipodal", Latitude: -37.9577, Longitude: 58.7092, Kind: .Test, Elevation: 0),
 
         //Bridges
         POI(Name: "Golden Gate Bridge", Latitude: 37.8199, Longitude: -122.4783, Kind: .Bridge),

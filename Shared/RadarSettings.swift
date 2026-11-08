@@ -76,6 +76,42 @@ final class RadarSettings
         }
     }
 
+    ///True to show the Sun and the Moon on the camera view (iPhone only).
+    var ShowSunMoon: Bool
+    {
+        didSet
+        {
+            Defaults.set(ShowSunMoon, forKey: RadarSettings.SunMoonKey)
+        }
+    }
+
+    ///True to show the zodiac constellations on the camera view (iPhone only).
+    var ShowZodiac: Bool
+    {
+        didSet
+        {
+            Defaults.set(ShowZodiac, forKey: RadarSettings.ZodiacKey)
+        }
+    }
+
+    ///True to show Carina, Ophiuchus, Orion, the Big Dipper, the Little Dipper and the Southern Cross (iPhone only).
+    var ShowOtherConstellations: Bool
+    {
+        didSet
+        {
+            Defaults.set(ShowOtherConstellations, forKey: RadarSettings.OtherConstellationsKey)
+        }
+    }
+
+    ///True to show the Andromeda galaxy and the Magellanic Clouds on the camera view (iPhone only).
+    var ShowGalaxies: Bool
+    {
+        didSet
+        {
+            Defaults.set(ShowGalaxies, forKey: RadarSettings.GalaxiesKey)
+        }
+    }
+
     ///The maximum range in meters.
     var MaxDistance: Double
     {
@@ -90,6 +126,10 @@ final class RadarSettings
     nonisolated static let UnitKey = "DistanceUnit"
     nonisolated static let MarkerLimitKey = "HUDMarkerLimit"
     nonisolated static let HorizonLockKey = "HorizonLocked"
+    nonisolated static let SunMoonKey = "ShowSunMoon"
+    nonisolated static let ZodiacKey = "ShowZodiac"
+    nonisolated static let OtherConstellationsKey = "ShowOtherConstellations"
+    nonisolated static let GalaxiesKey = "ShowGalaxies"
     nonisolated static let MarkerLimits = 3 ... 30
     nonisolated static let DefaultMarkerLimit = 10
 
@@ -104,6 +144,10 @@ final class RadarSettings
         Unit = (Defaults.string(forKey: RadarSettings.UnitKey)).flatMap { DistanceUnit(rawValue: $0) } ?? .Metric
         HUDMarkerLimit = RadarSettings.ClampMarkerLimit(Defaults.object(forKey: RadarSettings.MarkerLimitKey) as? Int ?? RadarSettings.DefaultMarkerLimit)
         HorizonLocked = Defaults.object(forKey: RadarSettings.HorizonLockKey) as? Bool ?? false
+        ShowSunMoon = Defaults.object(forKey: RadarSettings.SunMoonKey) as? Bool ?? false
+        ShowZodiac = Defaults.object(forKey: RadarSettings.ZodiacKey) as? Bool ?? false
+        ShowOtherConstellations = Defaults.object(forKey: RadarSettings.OtherConstellationsKey) as? Bool ?? false
+        ShowGalaxies = Defaults.object(forKey: RadarSettings.GalaxiesKey) as? Bool ?? false
     }
 
     ///Forces a range into `RangeLimits` and onto a multiple of `RangeStep`; a value that is not a number gives the default.
