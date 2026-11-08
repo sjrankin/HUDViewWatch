@@ -35,11 +35,17 @@ struct HUDMarkerView: View
                 Text(DistanceFormat.Short(Meters: Item.Distance, Unit: Unit))
                     .font(.caption2)
                     .foregroundStyle(.black.opacity(0.8))
+                if IsSelected
+                {
+                    HUDMarkerDetails(Item: Item, Unit: Unit)
+                }
             }
             .foregroundStyle(.black)
             .padding(.horizontal, 8)
             .padding(.vertical, 6)
-            .background(.white.opacity(0.85), in: .rect(cornerRadius: 8))
+            //Wide enough for the longest detail line once expanded.
+            .frame(minWidth: IsSelected ? 190 : nil)
+            .background(.white.opacity(IsSelected ? 0.95 : 0.85), in: .rect(cornerRadius: 8))
             .overlay
             {
                 RoundedRectangle(cornerRadius: 8)
@@ -47,6 +53,7 @@ struct HUDMarkerView: View
             }
         }
         .fixedSize()
-        .opacity(HUDMath.Opacity(Distance: Item.Distance))
+        .opacity(IsSelected ? 1.0 : HUDMath.Opacity(Distance: Item.Distance))
+        .animation(.snappy, value: IsSelected)
     }
 }

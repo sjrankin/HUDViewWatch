@@ -23,7 +23,7 @@ struct RootView: View
             {
                 HUDView(Compass: Compass)
             }
-            Tab("Radar", systemImage: "scope")
+            Tab("Radar", systemImage: "target")
             {
                 PhoneRadarView(Compass: Compass)
             }

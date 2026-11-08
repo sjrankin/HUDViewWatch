@@ -26,7 +26,6 @@ struct HUDView: View
     ///Every visible place with its distance and bearing from the last fix.
     @State private var Nearby: [POIFinder.VisiblePOI] = []
     @State private var ShowingLocation = false
-    @State private var ShowingRadar = false
 
     ///Every place on Earth is in range for the camera: the horizon, not a distance, decides what can be seen.
     static let MaxDistance = 12_742_000.0
@@ -64,8 +63,8 @@ struct HUDView: View
             {
                 CameraPreview(Session: Camera.Capture.Session, Orientation: Orientation, IsFrontCamera: Camera.IsFront)
             }
-            HUDOverlay(Frame: Drawing, Unit: Settings.Unit, SelectedID: Selection.SelectedID,
-                       OnSelect: { Selection.Toggle($0) })
+            HUDOverlay(Frame: Drawing, Unit: Settings.Unit, SelectedID: Selection.SelectedID, Area: Size,
+                       OnSelect: { Selection.Toggle($0) }, OnClear: { Selection.SelectedID = nil })
             VStack
             {
                 CompassBarView(Heading: Drawing.Facing)
@@ -97,8 +96,7 @@ struct HUDView: View
                 HUDControls(IsFront: Camera.IsFront, IsLocked: Settings.HorizonLocked, IsShowingLocation: ShowingLocation,
                             OnSwitchCamera: { Task { await Camera.SwitchCamera() } },
                             OnToggleLock: { Settings.HorizonLocked.toggle() },
-                            OnToggleLocation: { ShowingLocation.toggle() },
-                            OnShowRadar: { ShowingRadar = true })
+                            OnToggleLocation: { ShowingLocation.toggle() })
                     .padding(.bottom)
             }
             }
@@ -142,10 +140,6 @@ struct HUDView: View
         {
             Refresh()
         }
-        .sheet(isPresented: $ShowingRadar)
-        {
-            RadarSheet(Compass: Compass)
-        }
     }
 
     ///Why the picture or the horizon is missing, if it is.
@@ -176,12 +170,26 @@ struct HUDOverlay: View
     let Frame: HUDMath.Frame
     let Unit: DistanceUnit
     let SelectedID: UUID?
+    ///The size of the camera area.
+    let Area: CGSize
     let OnSelect: (UUID) -> Void
+    ///Called when the user taps where there is no place.
+    let OnClear: () -> Void
 
     var body: some View
     {
         ZStack
         {
+            //Behind the places, so a tap that misses them clears the selection.
+            Button(action: OnClear)
+            {
+                Color.clear
+                    .contentShape(.rect)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Clear selection")
+            //Places are layered by negative distance, so this has to be lower than any of them.
+            .zIndex(-.greatestFiniteMagnitude)
             Canvas
             {
                 Context, Size in
@@ -202,20 +210,7 @@ struct HUDOverlay: View
             ForEach(Frame.Placements)
             {
                 Entry in
-                Button
-                {
-                    OnSelect(Entry.id)
-                }
-                label:
-                {
-                    HUDMarkerView(Item: Entry.Item, Unit: Unit, IsSelected: Entry.id == SelectedID)
-                }
-                .buttonStyle(.plain)
-                //A zero-size frame anchored at its top puts the dot, not the middle of the whole marker, on the spot.
-                .frame(width: 0, height: 0, alignment: .top)
-                .position(x: Entry.Point.x, y: Entry.Point.y - HUDMarkerView.DotSize / 2)
-                //Nearest on top.
-                .zIndex(-Entry.Item.Distance)
+                HUDPlacedMarker(Entry: Entry, Unit: Unit, IsSelected: Entry.id == SelectedID, Area: Area, OnSelect: OnSelect)
             }
         }
     }
@@ -230,7 +225,6 @@ struct HUDControls: View
     let OnSwitchCamera: () -> Void
     let OnToggleLock: () -> Void
     let OnToggleLocation: () -> Void
-    let OnShowRadar: () -> Void
 
     var body: some View
     {
@@ -242,7 +236,6 @@ struct HUDControls: View
                    action: OnToggleLock)
             Button(IsShowingLocation ? "Hide Location" : "Show Location", systemImage: IsShowingLocation ? "location.fill" : "location",
                    action: OnToggleLocation)
-            Button("Radar", systemImage: "target", action: OnShowRadar)
         }
         .labelStyle(.iconOnly)
         .font(.title2)

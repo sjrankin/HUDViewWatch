@@ -101,7 +101,6 @@ struct NorthernCaliforniaData
     static let TestPOIs: [POI] =
     [
         POI(Name: "Home", Latitude: 38.00665, Longitude: -121.35991, Kind: .Test, Description: "Home"),
-        POI(Name: "Work", Latitude: 37.521037, Longitude: -122.256810, Kind: .Test, Description: "RWC Office"),
         POI(Name: "Old House", Latitude: 38.631662, Longitude: -120.930632, Kind: .Test, Description: "Shingle Springs")
     ]
 
