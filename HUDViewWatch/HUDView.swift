@@ -26,6 +26,8 @@ struct HUDView: View
     ///Every visible place with its distance and bearing from the last fix.
     @State private var Nearby: [POIFinder.VisiblePOI] = []
     @State private var ShowingLocation = false
+    ///True to hide the markers and point an arrow at the selected place instead.
+    @State private var IsPointing = false
 
     ///Every place on Earth is in range for the camera: the horizon, not a distance, decides what can be seen.
     static let MaxDistance = 12_742_000.0
@@ -36,7 +38,18 @@ struct HUDView: View
         HUDMath.MakeFrame(Items: Nearby, DeviceHeading: Heading, Pull: Motion.Pull, Size: Size,
                           Orientation: Orientation, FieldOfView: Camera.FieldOfView, IsFrontCamera: Camera.IsFront,
                           Locked: Settings.HorizonLocked, UserHeight: Compass.Location?.altitude ?? 0.0,
-                          Limit: Settings.HUDMarkerLimit)
+                          Limit: Settings.HUDMarkerLimit, GuideTarget: IsPointing ? Selection.SelectedID : nil,
+                          GuideArea: HUDView.GuideArea(In: Size))
+    }
+
+    ///Where an arrow's tip can be seen: clear of the compass bar and heading above, and the buttons below.
+    static func GuideArea(In Size: CGSize) -> CGRect
+    {
+        let Side = 30.0
+        let Top = 110.0
+        let Bottom = 110.0
+        let Area = CGRect(x: Side, y: Top, width: Size.width - Side * 2.0, height: Size.height - Top - Bottom)
+        return Area.width > 0 && Area.height > 0 ? Area : CGRect(origin: .zero, size: Size)
     }
 
     func Refresh()
@@ -94,9 +107,11 @@ struct HUDView: View
                     }
                 }
                 HUDControls(IsFront: Camera.IsFront, IsLocked: Settings.HorizonLocked, IsShowingLocation: ShowingLocation,
+                            IsPointing: IsPointing,
                             OnSwitchCamera: { Task { await Camera.SwitchCamera() } },
                             OnToggleLock: { Settings.HorizonLocked.toggle() },
-                            OnToggleLocation: { ShowingLocation.toggle() })
+                            OnToggleLocation: { ShowingLocation.toggle() },
+                            OnTogglePointing: { IsPointing.toggle() })
                     .padding(.bottom)
             }
             }
@@ -160,6 +175,10 @@ struct HUDView: View
         {
             return "Hold the phone upright to see the places."
         }
+        if IsPointing && Selection.SelectedID == nil
+        {
+            return "Tap a place to point an arrow at it."
+        }
         return nil
     }
 }
@@ -212,6 +231,11 @@ struct HUDOverlay: View
                 Entry in
                 HUDPlacedMarker(Entry: Entry, Unit: Unit, IsSelected: Entry.id == SelectedID, Area: Area, OnSelect: OnSelect)
             }
+            if let Arrow = Frame.Arrow
+            {
+                HUDGuideArrowView(Arrow: Arrow, Unit: Unit, Bounds: HUDView.GuideArea(In: Area))
+                    .zIndex(2.0)
+            }
         }
     }
 }
@@ -222,9 +246,11 @@ struct HUDControls: View
     let IsFront: Bool
     let IsLocked: Bool
     let IsShowingLocation: Bool
+    let IsPointing: Bool
     let OnSwitchCamera: () -> Void
     let OnToggleLock: () -> Void
     let OnToggleLocation: () -> Void
+    let OnTogglePointing: () -> Void
 
     var body: some View
     {
@@ -236,6 +262,8 @@ struct HUDControls: View
                    action: OnToggleLock)
             Button(IsShowingLocation ? "Hide Location" : "Show Location", systemImage: IsShowingLocation ? "location.fill" : "location",
                    action: OnToggleLocation)
+            Button(IsPointing ? "Show Places" : "Point to Selected Place",
+                   systemImage: IsPointing ? "arrow.up.forward.circle.fill" : "arrow.up.forward.circle", action: OnTogglePointing)
         }
         .labelStyle(.iconOnly)
         .font(.title2)

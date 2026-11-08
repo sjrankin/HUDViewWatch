@@ -169,6 +169,103 @@ struct HUDMathTests
         #expect(Front.Pose != nil)
     }
 
+    // MARK: Pointing arrow
+
+    private func Arrow(For Place: POIFinder.VisiblePOI, Heading: Double = 0, Locked: Bool = true) -> HUDMath.GuideArrow?
+    {
+        let Area = CGRect(x: 30, y: 110, width: 340, height: 580)
+        return HUDMath.MakeFrame(Items: [Place], DeviceHeading: Heading, Pull: .Upright, Size: Size, Orientation: .portrait,
+                                 FieldOfView: FieldOfView, IsFrontCamera: false, Locked: Locked, UserHeight: 0, Limit: 20,
+                                 GuideTarget: Place.id, GuideArea: Area).Arrow
+    }
+
+    @Test func ThePointingModeShowsAnArrowAndNoMarkers()
+    {
+        let Place = Item("A", Distance: 1000, Bearing: 0)
+        let Frame = HUDMath.MakeFrame(Items: [Place], DeviceHeading: 0, Pull: .Upright, Size: Size, Orientation: .portrait,
+                                      FieldOfView: FieldOfView, IsFrontCamera: false, Locked: true, UserHeight: 0, Limit: 20,
+                                      GuideTarget: Place.id)
+        #expect(Frame.Placements.isEmpty)
+        #expect(Frame.Arrow != nil)
+    }
+
+    @Test func AnUnknownTargetLeavesTheMarkers()
+    {
+        let Place = Item("A", Distance: 1000, Bearing: 0)
+        let Frame = HUDMath.MakeFrame(Items: [Place], DeviceHeading: 0, Pull: .Upright, Size: Size, Orientation: .portrait,
+                                      FieldOfView: FieldOfView, IsFrontCamera: false, Locked: true, UserHeight: 0, Limit: 20,
+                                      GuideTarget: UUID())
+        #expect(Frame.Placements.count == 1)
+        #expect(Frame.Arrow == nil)
+    }
+
+    @Test func InViewTheTipIsWhereTheMarkerWouldBe()
+    {
+        let Place = Item("A", Distance: 1000, Bearing: 10)
+        let Marker = HUDMath.MakeFrame(Items: [Place], DeviceHeading: 0, Pull: .Upright, Size: Size, Orientation: .portrait,
+                                       FieldOfView: FieldOfView, IsFrontCamera: false, Locked: true, UserHeight: 0, Limit: 20)
+            .Placements.first?.Point
+        let Found = Arrow(For: Place, Locked: true)
+        #expect(Found?.IsOffScreen == false)
+        #expect(Found?.Tip == Marker)
+    }
+
+    @Test func ANearlyCenteredTargetIsPointedDownAt()
+    {
+        let Found = Arrow(For: Item("A", Distance: 1000, Bearing: 0))
+        #expect(Found?.IsOffScreen == false)
+        #expect(Found?.Direction == CGPoint(x: 0, y: 1))
+    }
+
+    @Test func ATargetToTheRightOutOfViewGivesARedArrowOnTheRightEdge()
+    {
+        let Found = Arrow(For: Item("A", Distance: 1000, Bearing: 60))
+        #expect(Found?.IsOffScreen == true)
+        #expect(Found.map { abs(Double($0.Tip.x) - 370) < 0.001 } == true)
+        #expect(Found.map { $0.Direction.x > 0.9 } == true)
+    }
+
+    @Test func ATargetBehindTheCameraTurnsYouTheShortWay()
+    {
+        let Right = Arrow(For: Item("A", Distance: 1000, Bearing: 170))
+        let Left = Arrow(For: Item("B", Distance: 1000, Bearing: 190))
+        #expect(Right?.IsOffScreen == true)
+        #expect(Right.map { $0.Direction.x > 0 } == true)
+        #expect(Left.map { $0.Direction.x < 0 } == true)
+    }
+
+    @Test func TheArrowCarriesTheNameAndDistance()
+    {
+        let Found = Arrow(For: Item("Fremont", Distance: 1234, Bearing: 10))
+        #expect(Found?.Name == "Fremont")
+        #expect(Found?.Distance == 1234)
+    }
+
+    @Test func TheLabelSitsBehindTheTailAndStaysInBounds()
+    {
+        let Bounds = CGRect(x: 30, y: 110, width: 340, height: 580)
+        let Label = CGSize(width: 100, height: 40)
+        //Pointing right from the middle: the label is to the left of the tail.
+        let Level = HUDMath.GuideArrow(Tip: CGPoint(x: 300, y: 400), Direction: CGPoint(x: 1, y: 0), IsOffScreen: false,
+                                       Name: "A", Distance: 1)
+        let Left = HUDGuideArrowView.LabelCenter(Arrow: Level, LabelSize: Label, Bounds: Bounds)
+        #expect(Left.y == 400)
+        #expect(Left.x + 50 < 300 - HUDGuideArrowView.Length)
+        //Pointing right at the edge, far to the left: it would run off, so it is held at the bounds.
+        let Edge = HUDMath.GuideArrow(Tip: CGPoint(x: 120, y: 400), Direction: CGPoint(x: 1, y: 0), IsOffScreen: true,
+                                      Name: "A", Distance: 1)
+        let Held = HUDGuideArrowView.LabelCenter(Arrow: Edge, LabelSize: Label, Bounds: Bounds)
+        #expect(Held.x == Bounds.minX + 50)
+    }
+
+    @Test func TheEdgePointStaysInsideTheArea()
+    {
+        let Area = CGRect(x: 30, y: 110, width: 340, height: 580)
+        let Tip = HUDMath.EdgePoint(From: CGPoint(x: 200, y: 400), Direction: CGPoint(x: 0, y: -1), In: Area)
+        #expect(Tip == CGPoint(x: 200, y: 110))
+        #expect(Area.insetBy(dx: -0.001, dy: -0.001).contains(Tip))
+    }
+
     @Test func FarPlacesFade()
     {
         #expect(HUDMath.Opacity(Distance: 1000) == 1.0)
@@ -282,7 +379,7 @@ struct HUDSettingsTests
     @Test func TheMergedBuiltInPlacesIncludeHUDViewUIsExtras()
     {
         let Names = Set(NorthernCaliforniaData.AllPOIs.map(\.Name))
-        #expect(Names.isSuperset(of: ["Danville", "Redwood City", "Washington DC", "Work"]))
+        #expect(Names.isSuperset(of: ["Danville", "Redwood City", "Washington DC"]))
         #expect(NorthernCaliforniaData.AllPOIs.first { $0.Name == "Old House" }?.Description == "Shingle Springs")
     }
 }

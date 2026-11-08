@@ -187,6 +187,21 @@ enum HUDMath
         return atan2(PointHeight - UserHeight - Drop, Distance) * 180.0 / .pi
     }
 
+    ///A direction expressed along the camera's own axes: how far ahead of the lens it is, to the right of it and above it.
+    ///- Parameter Relative: Degrees the direction is to the right of the way the phone faces.
+    ///- Parameter Elevation: Degrees above the level horizon.
+    ///- Parameter Pitch: Radians the camera looks above the level.
+    static func CameraComponents(Relative: Double, Elevation: Double, Pitch: Double) -> (Forward: Double, Right: Double, Up: Double)
+    {
+        let Azimuth = Relative * .pi / 180.0
+        let Rise = Elevation * .pi / 180.0
+        let DX = sin(Azimuth) * cos(Rise)
+        let DY = cos(Azimuth) * cos(Rise)
+        let DZ = sin(Rise)
+        //The camera looks `Pitch` above the level: its forward axis is (0, cos, sin) and its up axis is (0, -sin, cos).
+        return (DY * cos(Pitch) + DZ * sin(Pitch), DX, -DY * sin(Pitch) + DZ * cos(Pitch))
+    }
+
     ///Where a direction falls in the view, or `nil` if it is behind the camera.
     ///- Parameter Relative: Degrees the direction is to the right of the way the phone faces.
     ///- Parameter Elevation: Degrees above the level horizon.
@@ -195,20 +210,13 @@ enum HUDMath
     ///- Parameter Middle: The middle of the view, which the horizon rolls about.
     static func Project(Relative: Double, Elevation: Double, Pose: HorizonPose, Focal: Double, Middle: CGPoint) -> CGPoint?
     {
-        let Azimuth = Relative * .pi / 180.0
-        let Rise = Elevation * .pi / 180.0
-        let DX = sin(Azimuth) * cos(Rise)
-        let DY = cos(Azimuth) * cos(Rise)
-        let DZ = sin(Rise)
-        //The camera looks `Pitch` above the level: its forward axis is (0, cos, sin) and its up axis is (0, -sin, cos).
-        let Forward = DY * cos(Pose.Pitch) + DZ * sin(Pose.Pitch)
-        guard Forward > 0.05 else
+        let Components = CameraComponents(Relative: Relative, Elevation: Elevation, Pitch: Pose.Pitch)
+        guard Components.Forward > 0.05 else
         {
             return nil
         }
-        let Up = -DY * sin(Pose.Pitch) + DZ * cos(Pose.Pitch)
-        let SX = Focal * DX / Forward
-        let SY = -Focal * Up / Forward
+        let SX = Focal * Components.Right / Components.Forward
+        let SY = -Focal * Components.Up / Components.Forward
         //The horizon is rolled about the middle of the view, and everything rolls with it.
         return CGPoint(x: Double(Middle.x) + SX * cos(Pose.Angle) - SY * sin(Pose.Angle),
                        y: Double(Middle.y) + SX * sin(Pose.Angle) + SY * cos(Pose.Angle))
@@ -256,6 +264,98 @@ enum HUDMath
         return Array(Shown.sorted { $0.Item.Distance < $1.Item.Distance }.prefix(max(Limit, 0)))
     }
 
+    ///The arrow of the pointing mode: where its tip is and which way it points.
+    struct GuideArrow: Equatable
+    {
+        ///The tip, in points. It is on the place's spot when the place is in view, else on the edge of the visible area.
+        var Tip: CGPoint
+        ///A unit vector, in screen coordinates (y down), along which the arrow points.
+        var Direction: CGPoint
+        ///True when the place is out of view (or behind the camera), so the tip is only on the way to it.
+        var IsOffScreen: Bool
+        ///The name of the place pointed at, and its distance in meters, for the label.
+        var Name: String
+        var Distance: Double
+
+        ///The angle of `Direction` in radians, clockwise on screen from pointing right.
+        var Angle: Double
+        {
+            atan2(Double(Direction.y), Double(Direction.x))
+        }
+    }
+
+    ///An arrow whose tip would be closer to the middle of the view than this points straight down at it.
+    static let GuideMinimumReach = 60.0
+
+    ///Where a ray from `Origin` along `Direction` leaves `Area`. `Origin` is moved inside the area first.
+    static func EdgePoint(From Origin: CGPoint, Direction: CGPoint, In Area: CGRect) -> CGPoint
+    {
+        let Start = CGPoint(x: min(max(Origin.x, Area.minX), Area.maxX), y: min(max(Origin.y, Area.minY), Area.maxY))
+        var Reach = Double.infinity
+        if Direction.x > 1e-9
+        {
+            Reach = min(Reach, Double(Area.maxX - Start.x) / Double(Direction.x))
+        }
+        else if Direction.x < -1e-9
+        {
+            Reach = min(Reach, Double(Area.minX - Start.x) / Double(Direction.x))
+        }
+        if Direction.y > 1e-9
+        {
+            Reach = min(Reach, Double(Area.maxY - Start.y) / Double(Direction.y))
+        }
+        else if Direction.y < -1e-9
+        {
+            Reach = min(Reach, Double(Area.minY - Start.y) / Double(Direction.y))
+        }
+        guard Reach.isFinite else
+        {
+            return Start
+        }
+        return CGPoint(x: Double(Start.x) + Double(Direction.x) * Reach, y: Double(Start.y) + Double(Direction.y) * Reach)
+    }
+
+    ///The arrow that points at one place. In view, its tip is where the place's marker would be; otherwise the tip is where the line
+    ///from the middle of the view toward the place leaves the visible area.
+    ///- Parameter Area: The part of the view where a tip is visible (clear of the bars and buttons).
+    static func MakeArrow(To Item: POIFinder.VisiblePOI, Facing: Double, UserHeight: Double, Pose: HorizonPose, Focal: Double,
+                          Size: CGSize, Area: CGRect, OnHorizon: Bool) -> GuideArrow
+    {
+        let Middle = CGPoint(x: Size.width / 2.0, y: Size.height / 2.0)
+        let Relative = POIFinder.AngleDifference(From: Facing, To: Item.Bearing)
+        let Elevation = OnHorizon ? 0.0
+            : ElevationAngle(PointHeight: Item.Place.Elevation ?? 0.0, UserHeight: UserHeight, Distance: Item.Distance)
+        let Point = Project(Relative: Relative, Elevation: Elevation, Pose: Pose, Focal: Focal, Middle: Middle)
+        //The way from the middle of the view toward the place, as a vector on the screen.
+        var Toward: CGPoint
+        if let Point
+        {
+            Toward = CGPoint(x: Point.x - Middle.x, y: Point.y - Middle.y)
+            if Area.contains(Point)
+            {
+                let Length = hypot(Toward.x, Toward.y)
+                //Too close to the middle to say which way to come from: point down at it.
+                let Direction = Double(Length) < GuideMinimumReach ? CGPoint(x: 0.0, y: 1.0)
+                    : CGPoint(x: Toward.x / Length, y: Toward.y / Length)
+                return GuideArrow(Tip: Point, Direction: Direction, IsOffScreen: false, Name: Item.Place.Name, Distance: Item.Distance)
+            }
+        }
+        else
+        {
+            //Behind the camera (or nearly beside it): only the sideways part of the direction says which way to turn. It rolls with
+            //the horizon, exactly as a projected point does.
+            let Components = CameraComponents(Relative: Relative, Elevation: Elevation, Pitch: Pose.Pitch)
+            let SX = Components.Right
+            let SY = -Components.Up
+            Toward = CGPoint(x: SX * cos(Pose.Angle) - SY * sin(Pose.Angle), y: SX * sin(Pose.Angle) + SY * cos(Pose.Angle))
+        }
+        let Length = hypot(Toward.x, Toward.y)
+        //Dead behind: any way will do, so turn right.
+        let Direction = Double(Length) > 1e-6 ? CGPoint(x: Toward.x / Length, y: Toward.y / Length) : CGPoint(x: 1.0, y: 0.0)
+        return GuideArrow(Tip: EdgePoint(From: Middle, Direction: Direction, In: Area), Direction: Direction, IsOffScreen: true,
+                          Name: Item.Place.Name, Distance: Item.Distance)
+    }
+
     ///How opaque a place's label is: farther places fade.
     static func Opacity(Distance: Double) -> Double
     {
@@ -271,6 +371,8 @@ enum HUDMath
         var Facing: Double
         ///The places on the view, nearest first.
         var Placements: [Placement]
+        ///The arrow of the pointing mode, or `nil` outside it.
+        var Arrow: GuideArrow? = nil
     }
 
     ///Works out the horizon and the place markers for the current heading, tilt and view.
@@ -278,9 +380,12 @@ enum HUDMath
     ///- Parameter DeviceHeading: The way the top of the phone points, in degrees from north.
     ///- Parameter UserHeight: The user's height above sea level in meters.
     ///- Parameter Limit: The most markers to place.
+    ///- Parameter GuideTarget: The place to point an arrow at. When it is one of `Items`, no markers are placed and the frame has the
+    ///  arrow instead.
+    ///- Parameter GuideArea: Where the arrow's tip can be seen. The whole view if `nil`.
     static func MakeFrame(Items: [POIFinder.VisiblePOI], DeviceHeading: Double, Pull: Gravity, Size: CGSize,
                           Orientation: ScreenOrientation, FieldOfView: Double, IsFrontCamera: Bool, Locked: Bool,
-                          UserHeight: Double, Limit: Int) -> Frame
+                          UserHeight: Double, Limit: Int, GuideTarget: UUID? = nil, GuideArea: CGRect? = nil) -> Frame
     {
         let Facing = FacingHeading(DeviceHeading, Orientation: Orientation)
         guard let Pose = Pose(Pull: Pull, Size: Size, Orientation: Orientation, FieldOfView: FieldOfView,
@@ -294,6 +399,13 @@ enum HUDMath
             return Frame(Pose: Pose, Facing: Facing, Placements: [])
         }
         let Focal = FocalPoints(Size: Size, Orientation: Orientation, FieldOfView: FieldOfView)
+        if let GuideTarget, let Target = Items.first(where: { $0.id == GuideTarget })
+        {
+            let Area = GuideArea ?? CGRect(origin: .zero, size: Size)
+            let Arrow = MakeArrow(To: Target, Facing: Facing, UserHeight: UserHeight, Pose: Pose, Focal: Focal, Size: Size, Area: Area,
+                                  OnHorizon: Locked)
+            return Frame(Pose: Pose, Facing: Facing, Placements: [], Arrow: Arrow)
+        }
         let Placements = Place(Items, Facing: Facing, UserHeight: UserHeight, Pose: Pose, Focal: Focal, Size: Size,
                                OnHorizon: Locked, Limit: Limit)
         return Frame(Pose: Pose, Facing: Facing, Placements: Placements)
