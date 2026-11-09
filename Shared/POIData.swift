@@ -49,7 +49,7 @@ struct NorthernCaliforniaData
         POI(Name: "Modesto", Latitude: 37.6391, Longitude: -120.9969, Kind: .City, Population: 218_464),
         POI(Name: "Fresno", Latitude: 36.7442, Longitude: -119.7631, Kind: .City, Population: 550_000),
         POI(Name: "Redding", Latitude: 40.5865, Longitude: -122.3917, Kind: .City, Population: 94_092),
-        POI(Name: "Backersfield", Latitude: 35.3733, Longitude: -119.0187, Kind: .City, Population: 422_853),
+        POI(Name: "Bakersfield", Latitude: 35.3733, Longitude: -119.0187, Kind: .City, Population: 422_853),
         POI(Name: "Los Angeles", Latitude: 34.052235, Longitude: -118.243683, Kind: .City, Population: 3_869_089),
         
         //Non-US
@@ -71,7 +71,7 @@ struct NorthernCaliforniaData
         POI(Name: "Mount Tamalpais", Latitude: 37.9235, Longitude: -122.5965, Kind: .Mountain, Elevation: 784),
         POI(Name: "Mount Hamilton", Latitude: 37.3414, Longitude: -121.6426, Kind: .Mountain, Elevation: 1_283),
         POI(Name: "Mount Whitney", Latitude: 36.5785, Longitude: -118.2923, Kind: .Mountain, Elevation: 4_421),
-        POI(Name: "Pyramid Peak", Latitude: 38.8450, Longitude: -120.1578, Kind: .Mountain, Elevation: 3_043),
+        POI(Name: "Pyramid Peak", Latitude: 38.8425, Longitude: -120.1606, Kind: .Mountain, Elevation: 3_043),
         POI(Name: "富士山", Latitude: 35.35806, Longitude: 138.73, Kind: .Mountain, Elevation: 3_776),
         //The exact antipode of Stockton (37.9577, -121.2908): the opposite latitude, and the longitude half a turn round. From Stockton it
         //lies straight down, 20,015 km away.
@@ -85,17 +85,17 @@ struct NorthernCaliforniaData
 
         //Parks
         POI(Name: "Yosemite", Latitude: 37.8651, Longitude: -119.5383, Kind: .Park),
-        POI(Name: "Point Reyes", Latitude: 38.0467, Longitude: -122.8794, Kind: .Park),
-        POI(Name: "Muir Woods", Latitude: 37.8916, Longitude: -122.5808, Kind: .Forest),
+        POI(Name: "Point Reyes", Latitude: 38.0402, Longitude: -122.7978, Kind: .Park),
+        POI(Name: "Muir Woods", Latitude: 37.8912, Longitude: -122.5717, Kind: .Forest),
         POI(Name: "Lassen National Park", Latitude: 40.4982, Longitude: -121.4275, Kind: .Park),
         POI(Name: "Kings Canyon", Latitude: 36.887856, Longitude: -118.555145, Kind: .Park),
-        POI(Name: "Sequoia National Park", Latitude: 36.558, Longitude: -118.7756, Kind: .Park),
+        POI(Name: "Sequoia National Park", Latitude: 36.4864, Longitude: -118.5658, Kind: .Park),
         POI(Name: "Death Valley", Latitude: 36.2502, Longitude: -116.8258, Kind: .Park),
 
         //Water features
         POI(Name: "Lake Tahoe", Latitude: 39.0968, Longitude: -120.0324, Kind: .Lake, Elevation: 1_897),
         POI(Name: "Shasta Lake", Latitude: 40.7603, Longitude: -122.3719, Kind: .Lake, Elevation: 325),
-        POI(Name: "Clear Lake", Latitude: 39.0616, Longitude: -122.8272, Kind: .Lake, Elevation: 432),
+        POI(Name: "Clear Lake", Latitude: 39.0616, Longitude: -122.8272, Kind: .Lake, Elevation: 404),
         POI(Name: "Lake Michigan", Latitude: 44.0, Longitude: -87.0, Kind: .Lake, Elevation: 176),
         POI(Name: "Lake Superior", Latitude: 47.7, Longitude: -87.5, Kind: .Lake, Elevation: 183),
         POI(Name: "Lake Titicaca", Latitude: -15.825, Longitude: -69.325, Kind: .Lake, Elevation: 3_812)
