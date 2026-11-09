@@ -14,9 +14,9 @@ import Observation
 final class RadarSettings
 {
     ///The range, in kilometers, of the radar's outer ring when fully zoomed out. Places farther away are not shown.
-    static let DefaultRangeKilometers = 800.0
-    static let RangeLimits = 25.0 ... 2000.0
-    static let RangeStep = 25.0
+    nonisolated static let DefaultRangeKilometers = 800.0
+    nonisolated static let RangeLimits = 25.0 ... 2000.0
+    nonisolated static let RangeStep = 25.0
 
     ///The farthest distance, in kilometers, at which places are shown. Always within `RangeLimits`.
     var MaxRangeKilometers: Double

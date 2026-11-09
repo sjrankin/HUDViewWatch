@@ -13,6 +13,8 @@ struct ContentView: View
 {
     @Environment(POIStore.self) private var Store
     @Environment(RadarSettings.self) private var Settings
+    ///Whether the app is on screen. The watch dims the display and drops to inactive/background when the wrist goes down.
+    @Environment(\.scenePhase) private var ScenePhase
     ///Source of the true north heading.
     @StateObject private var Compass = HeadingProvider()
     ///Digital Crown position: 0 is fully zoomed out (800 km), 1 is fully zoomed in. Zoom is logarithmic.
@@ -20,6 +22,8 @@ struct ContentView: View
     @State private var CrownPosition: Double = 0.2314
     ///True when the arrow toggle is on: the selected place, once there is one, gets an arrow and the other places are hidden.
     @State private var IsPointing = false
+    ///Gives the Digital Crown's view the focus, so the system knows which view the crown indicator belongs to.
+    @FocusState private var CrownHasFocus: Bool
     ///Points the radar is moved down, to keep it clear of the clock.
     private let TopInset = 16.0
     ///The size of the watch's screen in points. The radar is laid out on the whole screen; SwiftUI's own size for the view leaves
@@ -54,8 +58,27 @@ struct ContentView: View
         .ignoresSafeArea()
         //watchOS has no pinch gesture; the Digital Crown zooms (turn up to zoom in).
         .focusable()
+        .focused($CrownHasFocus)
+        .onAppear
+        {
+            CrownHasFocus = true
+        }
         .digitalCrownRotation($CrownPosition, from: 0.0, through: 1.0, by: 0.02,
                               sensitivity: .medium, isContinuous: false, isHapticFeedbackEnabled: true)
+        //Suspend: GPS and compass updates are the main battery cost, and they are useless while the display is off or the app
+        //is in the background. Stop them whenever the app is not active and restart them when it returns.
+        .onChange(of: ScenePhase)
+        {
+            _, NewPhase in
+            if NewPhase == .active
+            {
+                Compass.Start()
+            }
+            else
+            {
+                Compass.Stop()
+            }
+        }
     }
 }
 

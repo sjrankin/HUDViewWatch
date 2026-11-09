@@ -12,7 +12,7 @@ import Observation
 
 ///Owns the capture session. Starting and stopping a session blocks, so it is done off the main actor; the class is marked
 ///unchecked-Sendable because it is only ever used one call at a time.
-final class CaptureSession: @unchecked Sendable
+nonisolated final class CaptureSession: @unchecked Sendable
 {
     let Session = AVCaptureSession()
     private var CurrentInput: AVCaptureDeviceInput?

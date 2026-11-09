@@ -24,8 +24,7 @@ struct SettingsView: View
                 {
                     LabeledContent("Maximum range")
                     {
-                        Text(Settings.MaxRangeKilometers, format: .number.precision(.fractionLength(0)))
-                            + Text(" km")
+                        Text("\(Settings.MaxRangeKilometers, format: .number.precision(.fractionLength(0))) km")
                     }
                     Slider(value: $Bound.MaxRangeKilometers, in: RadarSettings.RangeLimits)
                     {
