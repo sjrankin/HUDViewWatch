@@ -29,8 +29,8 @@ struct PhoneRadarView: View
 
     ///Half the radar's width in units of Scale: the outer ring is 80, the cardinal letters 96 from the center and about 6 across.
     private static let ExtentPerScale = 204.0
-    ///The height the radar needs in units of Scale: its width plus the readout band under it (36).
-    private static let HeightPerScale = 244.0
+    ///The height the radar needs in units of Scale: its width. The readout lies over the radar's bottom edge, so it needs no band.
+    private static let HeightPerScale = 208.0
 
     ///The Scale that makes the radar, cardinal letters included, nearly fill the space it is given, whatever the screen.
     var FittedScale: Double
@@ -46,46 +46,52 @@ struct PhoneRadarView: View
     {
         VStack(spacing: 0)
         {
-            RadarContent(Places: Store.Visible, Compass: Compass, Zoom: $Zoom, Scale: FittedScale,
-                         CropToRange: Settings.CropToRange, IsPointing: Selection.IsPointing, ShowsCount: true, UserPlaceIDs: Set(Store.Custom.map(\.id)), Unit: Settings.Unit, CardinalWeight: .heavy,
-                         MaxDistance: Settings.MaxDistance,
-                         BackgroundColor: PhoneRadarView.Background, CardinalColor: Color(red: 1, green: 1, blue: 0),
-                         SharedSelection: Binding(get: { Selection.SelectedID }, set: { Selection.SelectedID = $0 }))
-                //Markers outside the rings are cut off at the status bar above and just above the slider below. This region runs
-                //from the bottom of the status bar to the top of the slider bar, so it includes the band where the annotation appears.
-                .clipped()
-                //The same toggle as on the watch, in the lower-right corner of the radar.
-                .overlay(alignment: .bottomTrailing)
-                {
-                    PointingToggle(IsOn: Binding(get: { Selection.IsPointing }, set: { Selection.IsPointing = $0 }),
-                                   Size: PhoneRadarView.ToggleSize)
-                        .padding()
-                        //Above the band under the radar where the selected place's name and distance appear.
-                        .padding(.bottom, 40 * FittedScale)
-                }
-                .onGeometryChange(for: CGSize.self)
-                {
-                    $0.size
-                }
-                action:
-                {
-                    Available = $0
-                }
-                .gesture(MagnifyGesture()
-                    .onChanged
+            ZStack(alignment: .bottomTrailing)
+            {
+                RadarContent(Places: Store.Visible, Compass: Compass, Zoom: $Zoom, Scale: FittedScale, ReadoutReservesSpace: false,
+                             CropToRange: Settings.CropToRange, IsPointing: Selection.IsPointing,
+                             UserPlaceIDs: Set(Store.Custom.map(\.id)), ShowsMap: Settings.ShowMap, Unit: Settings.Unit,
+                             CardinalWeight: .heavy, MaxDistance: Settings.MaxDistance,
+                             BackgroundColor: PhoneRadarView.Background, CardinalColor: Color(red: 1, green: 1, blue: 0),
+                             SharedSelection: Binding(get: { Selection.SelectedID }, set: { Selection.SelectedID = $0 }))
+                    //Markers outside the rings are cut off at the status bar above and just above the slider below. This region runs
+                    //from the bottom of the status bar to the top of the slider bar, so it includes the band where the annotation appears.
+                    //Sideways the cut is far out, so that in landscape the map runs to the screen's edges, under the camera cutout.
+                    .mask
                     {
-                        Pinch in
-                        if PinchStart == nil
-                        {
-                            PinchStart = Zoom
-                        }
-                        Zoom = PinchZoom.Zoom(Start: PinchStart ?? Zoom, Magnification: Pinch.magnification)
+                        Rectangle()
+                            .padding(.horizontal, -300)
                     }
-                    .onEnded
+                //The same toggle as on the watch, in the lower-right corner of the radar.
+                PointingToggle(IsOn: Binding(get: { Selection.IsPointing }, set: { Selection.IsPointing = $0 }),
+                               Size: PhoneRadarView.ToggleSize)
+                    .padding()
+                    //Above the band under the radar where the selected place's name and distance appear.
+                    .padding(.bottom, 40 * FittedScale)
+            }
+            .onGeometryChange(for: CGSize.self)
+            {
+                $0.size
+            }
+            action:
+            {
+                Available = $0
+            }
+            .gesture(MagnifyGesture()
+                .onChanged
+                {
+                    Pinch in
+                    if PinchStart == nil
                     {
-                        _ in
-                        PinchStart = nil
-                    })
+                        PinchStart = Zoom
+                    }
+                    Zoom = PinchZoom.Zoom(Start: PinchStart ?? Zoom, Magnification: Pinch.magnification)
+                }
+                .onEnded
+                {
+                    _ in
+                    PinchStart = nil
+                })
             HStack
             {
                 Image(systemName: "minus.magnifyingglass")

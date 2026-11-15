@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import CoreLocation
 
 ///The radar with its two-line readout. The watch and the iPhone both show it; the watch zooms with the Digital Crown and the iPhone
 ///with a slider and a pinch, both through `Zoom`.
@@ -24,6 +25,9 @@ struct RadarContent: View
     ///True to put the selected place's name and distance in the upper-left corner (the watch) instead of in a band under the radar
     ///(the iPhone). In the corner nothing is reserved below the radar, so the radar has the whole screen.
     var ReadoutInCorner: Bool = false
+    ///True to keep a band for the readout under the radar. False lays the readout over the bottom of the radar instead, which then
+    ///fills the whole view and is centered in it.
+    var ReadoutReservesSpace: Bool = true
     ///True to show only places inside the outer ring. False shows every place within the maximum range, drawn outside the ring
     ///when it is beyond the current zoom's range.
     var CropToRange: Bool = true
@@ -35,6 +39,8 @@ struct RadarContent: View
     var ShowsCount: Bool = false
     ///The ids of the places the user created or edited. When markers crowd each other these are kept ahead of the built-in places.
     var UserPlaceIDs: Set<UUID> = []
+    ///True to draw the built-in map behind the rings, turned so up is where the device points.
+    var ShowsMap: Bool = false
     ///Units for distances shown on the radar.
     var Unit: DistanceUnit = .Metric
     ///Weight of the cardinal letters.
@@ -64,11 +70,41 @@ struct RadarContent: View
     let CenterColor: Color = .black
 
     ///POIs within MaxDistance of the last location fix.
+    ///The size of this view, measured on screen.
+    @State private var ViewSize = CGSize.zero
     @State private var NearbyPOIs: [POIFinder.VisiblePOI] = []
     ///The tapped POI, if any, when nothing outside the radar keeps the selection.
     @State private var LocalSelectedID: UUID? = nil
     ///A selection kept outside the radar (the iPhone shares it with the camera view); `nil` for the radar's own, as on the watch.
     var SharedSelection: Binding<UUID?>? = nil
+
+    ///Where the map is centered, if it is shown and there is a location fix.
+    var MapCenter: CLLocationCoordinate2D?
+    {
+        ShowsMap ? Compass.Location?.coordinate : nil
+    }
+
+    ///How far the ring center is below the center of this view, in points: the radar is moved down by `TopInset`, and the readout
+    ///band under it moves the radar up by half its height.
+    var RingCenterShift: Double
+    {
+        TopInset - (ReadoutInCorner || ReadoutReservesSpace == false ? 0 : ReadoutHeight) / 2
+    }
+
+    ///The map's width and height in points. It is a square whose inscribed circle covers this whole view, with some to spare, because
+    ///the map may be turned (always on the watch, and on the iPhone when MapKit will not turn it). In landscape it also reaches past
+    ///the view's left and right edges, so it can run under a camera cutout.
+    var MapSize: CGSize
+    {
+        #if os(iOS)
+        let Extra = ViewSize.width > ViewSize.height ? 160.0 : 0.0
+        let Covered = hypot(ViewSize.width + Extra, ViewSize.height + 2 * abs(RingCenterShift)) * 1.1
+        let Side = max(Covered, Gap * RingCount)
+        #else
+        let Side = max(Gap * RingCount * 3, hypot(ViewSize.width, ViewSize.height) * 1.25 + 2 * abs(RingCenterShift))
+        #endif
+        return CGSize(width: Side, height: Side)
+    }
 
     var SelectedID: UUID?
     {
@@ -212,15 +248,29 @@ struct RadarContent: View
                     ClampsToRange: CropToRange || PointTarget != nil,
                     ClipsToView: ClipsToView,
                     CardinalWeight: CardinalWeight,
-                    ArrowTarget: PointTarget)
+                    ArrowTarget: PointTarget,
+                    OverMap: MapCenter != nil)
             //Offset rather than padding: the radar moves by the full amount and the readout below stays put.
             .offset(y: TopInset)
             //Room for two lines of text below the radar.
-            if ReadoutInCorner == false
+            if ReadoutInCorner == false && ReadoutReservesSpace
             {
                 ReadoutView(Selected: SelectedPOI, ShowDebugStatus: ShowDebugStatus, Compass: Compass, Large: Scale > 1, Unit: Unit,
                             Hint: IsPointing ? PointingSelection.Hint : nil, PlaceCount: ShowsCount ? InRangeCount : nil)
                     .frame(height: ReadoutHeight)
+                    //A dark halo keeps the text readable over a bright map.
+                    .shadow(color: MapCenter == nil ? .clear : .black.opacity(0.8), radius: 2)
+            }
+        }
+        .overlay(alignment: .bottom)
+        {
+            if ReadoutInCorner == false && ReadoutReservesSpace == false
+            {
+                ReadoutView(Selected: SelectedPOI, ShowDebugStatus: ShowDebugStatus, Compass: Compass, Large: Scale > 1, Unit: Unit,
+                            Hint: IsPointing ? PointingSelection.Hint : nil, PlaceCount: ShowsCount ? InRangeCount : nil)
+                    .frame(height: ReadoutHeight)
+                    .shadow(color: MapCenter == nil ? .clear : .black.opacity(0.8), radius: 2)
+                    .allowsHitTesting(false)
             }
         }
         .overlay(alignment: .topLeading)
@@ -238,7 +288,25 @@ struct RadarContent: View
                     .ignoresSafeArea(edges: .top)
             }
         }
+        .background
+        {
+            //Behind everything and centered on the rings, so the map shows through the whole view, not just the rings' area.
+            if let MapCenter
+            {
+                RadarMapView(Center: MapCenter, Heading: Compass.Heading, RangeDistance: RangeDistance, RingDiameter: Gap * RingCount,
+                             Size: MapSize)
+                    .offset(y: RingCenterShift)
+            }
+        }
         .background(BackgroundColor.ignoresSafeArea())
+        .onGeometryChange(for: CGSize.self)
+        {
+            $0.size
+        }
+        action:
+        {
+            ViewSize = $0
+        }
         .onAppear
         {
             Compass.Start()

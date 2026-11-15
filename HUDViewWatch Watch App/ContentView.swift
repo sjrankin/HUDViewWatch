@@ -43,7 +43,7 @@ struct ContentView: View
         {
             RadarContent(Places: Store.Visible, Compass: Compass, Zoom: $CrownPosition,
                          Scale: RadarFit.Scale(Available: ScreenSize, TopInset: TopInset), TopInset: TopInset, ReadoutInCorner: true,
-                         IsPointing: IsPointing, UserPlaceIDs: Set(Store.Custom.map(\.id)), Unit: Settings.Unit,
+                         IsPointing: IsPointing, UserPlaceIDs: Set(Store.Custom.map(\.id)), ShowsMap: Settings.ShowMap, Unit: Settings.Unit,
                          MaxDistance: Settings.MaxDistance, BackgroundColor: Color(white: 0.2),
                          CardinalColor: Color(red: 1.0, green: 0.97, blue: 0.7))
                 //Laid out on the whole screen, and sized to fit it (see `RadarFit`), so that on a small watch the cardinal letters

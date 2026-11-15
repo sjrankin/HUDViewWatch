@@ -112,6 +112,15 @@ final class RadarSettings
         }
     }
 
+    ///True to show the built-in map behind the radar, turned so that up is where the watch points. Sent to the watch.
+    var ShowMap: Bool
+    {
+        didSet
+        {
+            Defaults.set(ShowMap, forKey: RadarSettings.MapKey)
+        }
+    }
+
     ///The maximum range in meters.
     var MaxDistance: Double
     {
@@ -130,6 +139,7 @@ final class RadarSettings
     nonisolated static let ZodiacKey = "ShowZodiac"
     nonisolated static let OtherConstellationsKey = "ShowOtherConstellations"
     nonisolated static let GalaxiesKey = "ShowGalaxies"
+    nonisolated static let MapKey = "ShowMapBackground"
     nonisolated static let MarkerLimits = 3 ... 30
     nonisolated static let DefaultMarkerLimit = 10
 
@@ -148,6 +158,7 @@ final class RadarSettings
         ShowZodiac = Defaults.object(forKey: RadarSettings.ZodiacKey) as? Bool ?? false
         ShowOtherConstellations = Defaults.object(forKey: RadarSettings.OtherConstellationsKey) as? Bool ?? false
         ShowGalaxies = Defaults.object(forKey: RadarSettings.GalaxiesKey) as? Bool ?? false
+        ShowMap = Defaults.object(forKey: RadarSettings.MapKey) as? Bool ?? false
     }
 
     ///Forces a range into `RangeLimits` and onto a multiple of `RangeStep`; a value that is not a number gives the default.

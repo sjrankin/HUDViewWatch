@@ -34,6 +34,7 @@ final class WatchLink: NSObject, WCSessionDelegate
     nonisolated static let DeletedKey = "DeletedBuiltIns"
     nonisolated static let HiddenKey = "HiddenBuiltIns"
     nonisolated static let UnitKey = "DistanceUnit"
+    nonisolated static let MapKey = "ShowMapBackground"
     nonisolated static let StampKey = "SentAt"
     nonisolated static let CountKey = "Count"
 
@@ -96,6 +97,7 @@ final class WatchLink: NSObject, WCSessionDelegate
                                            WatchLink.DeletedKey: Store.Deleted.sorted(),
                                            WatchLink.HiddenKey: Store.HiddenBuiltIns.sorted(),
                                            WatchLink.UnitKey: Settings.Unit.rawValue,
+                                           WatchLink.MapKey: Settings.ShowMap,
                                            WatchLink.StampKey: Date().timeIntervalSince1970]
             try Session.updateApplicationContext(Payload)
             Status = "Sent \(Count) \(Noun) at \(WatchLink.Clock())."
@@ -142,7 +144,7 @@ final class WatchLink: NSObject, WCSessionDelegate
     // MARK: Receiving (watch)
 
     #if os(watchOS)
-    private func Apply(_ Raw: Data, Range: Double?, Deleted: [String]?, Hidden: [String]?, Unit: String?)
+    private func Apply(_ Raw: Data, Range: Double?, Deleted: [String]?, Hidden: [String]?, Unit: String?, Map: Bool?)
     {
         if let Range
         {
@@ -151,6 +153,10 @@ final class WatchLink: NSObject, WCSessionDelegate
         if let Unit, let Chosen = DistanceUnit(rawValue: Unit)
         {
             Settings.Unit = Chosen
+        }
+        if let Map
+        {
+            Settings.ShowMap = Map
         }
         guard let Places = try? POIStore.Decode(Raw) else
         {
@@ -170,7 +176,7 @@ final class WatchLink: NSObject, WCSessionDelegate
         {
             Apply(Raw, Range: Saved[WatchLink.RangeKey] as? Double, Deleted: Saved[WatchLink.DeletedKey] as? [String],
                   Hidden: Saved[WatchLink.HiddenKey] as? [String],
-                  Unit: Saved[WatchLink.UnitKey] as? String)
+                  Unit: Saved[WatchLink.UnitKey] as? String, Map: Saved[WatchLink.MapKey] as? Bool)
         }
         #endif
     }
@@ -218,8 +224,9 @@ final class WatchLink: NSObject, WCSessionDelegate
         let Deleted = Message[WatchLink.DeletedKey] as? [String]
         let Hidden = Message[WatchLink.HiddenKey] as? [String]
         let Unit = Message[WatchLink.UnitKey] as? String
+        let Map = Message[WatchLink.MapKey] as? Bool
         Task { @MainActor in
-            self.Apply(Raw, Range: Range, Deleted: Deleted, Hidden: Hidden, Unit: Unit)
+            self.Apply(Raw, Range: Range, Deleted: Deleted, Hidden: Hidden, Unit: Unit, Map: Map)
         }
     }
 
@@ -233,8 +240,9 @@ final class WatchLink: NSObject, WCSessionDelegate
         let Deleted = Context[WatchLink.DeletedKey] as? [String]
         let Hidden = Context[WatchLink.HiddenKey] as? [String]
         let Unit = Context[WatchLink.UnitKey] as? String
+        let Map = Context[WatchLink.MapKey] as? Bool
         Task { @MainActor in
-            self.Apply(Raw, Range: Range, Deleted: Deleted, Hidden: Hidden, Unit: Unit)
+            self.Apply(Raw, Range: Range, Deleted: Deleted, Hidden: Hidden, Unit: Unit, Map: Map)
         }
     }
     #endif

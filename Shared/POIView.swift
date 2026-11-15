@@ -53,12 +53,20 @@ struct POIView: View
     var ArrowTarget: POIFinder.VisiblePOI? = nil
     ///The size of the tap layer, to find the ring center in a tap.
     @State private var TapSize = CGSize.zero
+    ///True when a map is drawn behind the radar (by `RadarContent`): the labels get smaller and everything a dark halo.
+    var OverMap: Bool = false
     
     ///Angle in degrees, clockwise from up (0 is due north at the top of the screen).
     ///Turning the watch clockwise moves north counter-clockwise on screen.
     var NorthAngle: Double
     {
         return Heading * -1
+    }
+
+    ///The size of the ring distance labels relative to normal: 25% smaller over a map, which has a lot more to look at.
+    var RingLabelScale: Double
+    {
+        OverMap ? 0.75 : 1.0
     }
 
     ///Radius of the outer ring, which is RangeDistance.
@@ -110,8 +118,12 @@ struct POIView: View
             {
                 index in
                 Text(DistanceFormat.Short(Meters: RangeDistance * Double(index) / RingCount, Unit: Unit))
-                    .font(.system(size: 9 * FontScale))
+                    .font(.system(size: 9 * FontScale * RingLabelScale))
                     .foregroundStyle(RingLabelColor)
+                    //A black pill behind the text, so it can be read over the map.
+                    .padding(.horizontal, 4 * FontScale * RingLabelScale)
+                    .padding(.vertical, 1 * FontScale * RingLabelScale)
+                    .background(.black.opacity(0.5), in: .capsule)
                     .offset(y: (Gap * Double(index) / 2) * -1 + 8 * FontScale)
             }
             ForEach(1 ... Int(RingCount), id: \.self)
@@ -185,8 +197,11 @@ struct POIView: View
         .padding()
         //Without this the view is only as wide as the rings and the background stops there.
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        //Over a map the rings, letters and markers get a dark halo so they can still be seen against a bright map.
+        .shadow(color: OverMap ? .black.opacity(0.7) : .clear, radius: 1.5)
         .modifier(ClipToView(Enabled: ClipsToView))
-        .background(BackgroundColor.ignoresSafeArea())
+        //Clear over a map, which `RadarContent` draws behind this view.
+        .background((OverMap ? Color.clear : BackgroundColor).ignoresSafeArea())
     }
 }
 

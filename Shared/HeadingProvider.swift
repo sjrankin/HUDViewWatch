@@ -7,6 +7,9 @@
 
 import CoreLocation
 import Combine
+#if os(iOS)
+import UIKit
+#endif
 
 ///Publishes the direction the watch is facing, in degrees clockwise from true north.
 ///True north needs location authorization; until it is granted (or when the heading is
@@ -48,8 +51,30 @@ final class HeadingProvider: NSObject, ObservableObject, CLLocationManagerDelega
         Manager.distanceFilter = 10
     }
 
+    #if os(iOS)
+    ///Core Location reports the heading of the top of the phone held upright unless it is told which view the heading is for. In
+    ///landscape the top of the screen is a side of the phone, so the heading is referenced to the app's own view, which follows the
+    ///screen's orientation. Without this the radar and its map are a quarter turn off in landscape.
+    @MainActor
+    private func ReferenceHeadingToScreen()
+    {
+        let Windows = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.flatMap(\.windows)
+        let Window = Windows.first(where: \.isKeyWindow) ?? Windows.first
+        if let Reference = Window?.rootViewController?.view ?? Window
+        {
+            Manager.headingBody = Reference
+        }
+    }
+    #endif
+
     func Start()
     {
+        #if os(iOS)
+        MainActor.assumeIsolated
+        {
+            ReferenceHeadingToScreen()
+        }
+        #endif
         Manager.requestWhenInUseAuthorization()
         //Location updates are what let Core Location compute the declination for true north.
         Manager.startUpdatingLocation()

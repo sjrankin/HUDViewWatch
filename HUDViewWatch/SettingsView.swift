@@ -67,6 +67,22 @@ struct SettingsView: View
                 }
                 Section
                 {
+                    Toggle("Show map behind radar", isOn: $Bound.ShowMap)
+                        .onChange(of: Settings.ShowMap)
+                        {
+                            Link.Send()
+                        }
+                }
+                header:
+                {
+                    Text("Map")
+                }
+                footer:
+                {
+                    Text("Shows the map behind the radar, on the iPhone and on the Apple Watch. The map turns so the top of the radar is always the direction you point.")
+                }
+                Section
+                {
                     Picker("Distances", selection: $Bound.Unit)
                     {
                         ForEach(DistanceUnit.allCases)

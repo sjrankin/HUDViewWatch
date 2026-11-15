@@ -52,4 +52,12 @@ struct RadarSettingsTests
         Settings.CropToRange = true
         #expect(RadarSettings(Defaults: Defaults).CropToRange)
     }
+
+    @Test func MapIsOffByDefaultAndIsRemembered()
+    {
+        let (Settings, Defaults, _) = MakeSettings()
+        #expect(Settings.ShowMap == false)
+        Settings.ShowMap = true
+        #expect(RadarSettings(Defaults: Defaults).ShowMap)
+    }
 }
