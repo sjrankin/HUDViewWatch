@@ -133,7 +133,10 @@ name and distance). It is gray when the mode is off, and solid yellow with a whi
 <img src="Images/HUDViewPhoneRadarView.gif" alt="HUDViewWatch in pointer mode on an Apple Watch." width="400">\
 
 Radar view on an Apple Watch.\
-<img src="Images/HUDViewWatchPointerOnWatch.gif" alt="HUDViewWatch in pointer mode on an Apple Watch." width="400">
+<img src="Images/HUDViewWatchPointerOnWatch.gif" alt="HUDViewWatch in pointer mode on an Apple Watch." width="400">\
+
+Radar view on an Apple Watch with the map in the background to provide more context.\
+<img src="Images/HUDViewWatchMap.gif" alt="HUDViewWatch in pointer mode on an Apple Watch." width="400">
 
 - **With the mode on and no place chosen**, a short hint asks you to tap a place: in the upper left on the watch, and below the radar
   on the iPhone. (On the iPhone HUD it appears under the heading label.)
@@ -170,6 +173,7 @@ watch are sent to it; the ones marked "iPhone only" change only the iPhone. The 
 | :--- | :--- |
 | **Maximum range** | Places farther than this are not shown on the radar and the watch. It is also the distance of the outer ring when the radar is zoomed all the way out. Sent to the watch. The HUD shows places at any distance. |
 | **Crop places to range** | On: the iPhone radar shows only places inside the outer ring. Off: places beyond the ring are drawn outside it and move as you zoom. This affects only the iPhone radar; the watch always keeps places inside the ring. |
+| **Show map behind radar** | Show a map behind the radar view. The map rotates along with the device. Applies to both iOS and watchOS. |
 | **Distances** | Kilometers and meters, or miles and feet, for every distance in the HUD, the radar and the watch. Sent to the watch. |
 | **Most places shown** | The most places drawn on the HUD at once, nearest first. Lower it if the HUD feels slow. |
 | **Show Sun and Moon** | Adds the Sun and the Moon to the HUD. iPhone only. |
