@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		17BB7C10308FBBF1003F58C2 /* RemoteLogKit in Frameworks */ = {isa = PBXBuildFile; productRef = 17BB7C11308FBBF1003F58C2 /* RemoteLogKit */; };
 		17BB7BC1308FBBF1003F58C2 /* HUDViewWatch Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 17BB7BC0308FBBF1003F58C2 /* HUDViewWatch Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -77,6 +78,7 @@
 		17BB7BE3308FBBF1003F58C2 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
+				17BB7C10308FBBF1003F58C2 /* RemoteLogKit in Frameworks */,
 			);
 		};
 		17BB7BF4308FBBF1003F58C2 /* Frameworks */ = {
@@ -128,6 +130,9 @@
 			fileSystemSynchronizedGroups = (
 				17BB7BE0308FBBF1003F58C2 /* Shared */,
 				17BB7BE1308FBBF1003F58C2 /* HUDViewWatch */,
+			);
+			packageProductDependencies = (
+				17BB7C11308FBBF1003F58C2 /* RemoteLogKit */,
 			);
 			name = HUDViewWatch;
 			productName = HUDViewWatch;
@@ -205,6 +210,9 @@
 			);
 			mainGroup = 17BB7BB3308FBBF0003F58C2;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				17BB7C12308FBBF1003F58C2 /* XCLocalSwiftPackageReference "../RemoteLogPackage" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 17BB7BBB308FBBF1003F58C2 /* Products */;
 			projectDirPath = "";
@@ -465,7 +473,7 @@
 				INFOPLIST_FILE = "HUDViewWatch-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = HUDViewWatch;
 				INFOPLIST_KEY_NSCameraUsageDescription = "The camera shows your surroundings behind the places drawn over it.";
-				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Used to send your location and heading to HUDViewMac on this network.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Used to send your location and heading to HUDViewMac, and test log messages to RemoteLogStore, on this network.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Used to show the compass and radar, and to fill in the location of a new place.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -503,7 +511,7 @@
 				INFOPLIST_FILE = "HUDViewWatch-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = HUDViewWatch;
 				INFOPLIST_KEY_NSCameraUsageDescription = "The camera shows your surroundings behind the places drawn over it.";
-				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Used to send your location and heading to HUDViewMac on this network.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Used to send your location and heading to HUDViewMac, and test log messages to RemoteLogStore, on this network.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Used to show the compass and radar, and to fill in the location of a new place.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -610,6 +618,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		17BB7C12308FBBF1003F58C2 /* XCLocalSwiftPackageReference "../RemoteLogPackage" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../RemoteLogPackage;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		17BB7C11308FBBF1003F58C2 /* RemoteLogKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = RemoteLogKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 17BB7BB4308FBBF0003F58C2 /* Project object */;
 	validationLevel = 1;

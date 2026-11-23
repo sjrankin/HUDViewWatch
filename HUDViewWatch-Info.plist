@@ -5,6 +5,7 @@
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_hudview._udp</string>
+		<string>_remotelog._tcp</string>
 	</array>
 </dict>
 </plist>

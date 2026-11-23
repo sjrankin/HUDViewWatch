@@ -37,6 +37,10 @@ struct RootView: View
             {
                 SettingsView()
             }
+            Tab("Log Test", systemImage: "text.badge.checkmark")
+            {
+                RemoteLogTestView()
+            }
         }
         //The "Send to Mac" setting starts and stops the sender, including at launch.
         .onAppear

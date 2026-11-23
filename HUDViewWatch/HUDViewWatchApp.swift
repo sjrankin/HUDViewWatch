@@ -19,6 +19,8 @@ struct HUDViewWatchApp: App
     @State private var Selection = PlaceSelection()
     ///Sends the phone's position and heading to HUDViewMac while "Send to Mac" is on.
     @State private var Sender = OrientationSender()
+    ///Sends test log data to RemoteLogStore on the Mac (see the Log Test tab).
+    @State private var LogTester = RemoteLogTester()
 
     init()
     {
@@ -39,6 +41,7 @@ struct HUDViewWatchApp: App
                 .environment(Settings)
                 .environment(Selection)
                 .environment(Sender)
+                .environment(LogTester)
         }
     }
 }
