@@ -35,6 +35,13 @@ struct RadarContent: View
     var ClipsToView: Bool = false
     ///True for the pointing mode: when a place is selected, only that place is drawn, with an arrow from the center to it.
     var IsPointing: Bool = false
+    ///When set, the scale of the place markers, the location star and the tap area, in place of `Scale`. The Mac radar uses it so the
+    ///icons keep one size whatever the window's size, while the rings grow with the window.
+    var IconScale: Double? = nil
+    ///How much larger than the standard size the pointing mode's arrow is drawn (1 on the watch and iPhone). It also gets heavier.
+    var ArrowScale: Double = 1.0
+    ///How much narrower (below 1) the pointing arrow is drawn than standard, at any `ArrowScale`.
+    var ArrowWidthScale: Double = 1.0
     ///True to show how many places are in range, below the radar, when none is selected (the iPhone).
     var ShowsCount: Bool = false
     ///The ids of the places the user created or edited. When markers crowd each other these are kept ahead of the built-in places.
@@ -100,10 +107,15 @@ struct RadarContent: View
         let Extra = ViewSize.width > ViewSize.height ? 160.0 : 0.0
         let Covered = hypot(ViewSize.width + Extra, ViewSize.height + 2 * abs(RingCenterShift)) * 1.1
         let Side = max(Covered, Gap * RingCount)
+        return CGSize(width: Side, height: Side)
+        #elseif os(macOS)
+        //The Mac's map turns itself with the camera heading, so it only has to cover the view (a larger one would have the camera
+        //so far out that the Earth's curve and the dark space around it show).
+        return CGSize(width: ViewSize.width + 2 * abs(RingCenterShift), height: ViewSize.height + 2 * abs(RingCenterShift))
         #else
         let Side = max(Gap * RingCount * 3, hypot(ViewSize.width, ViewSize.height) * 1.25 + 2 * abs(RingCenterShift))
-        #endif
         return CGSize(width: Side, height: Side)
+        #endif
     }
 
     var SelectedID: UUID?
@@ -133,13 +145,13 @@ struct RadarContent: View
     ///Diameter of each POI marker and of the location star.
     var IconSize: Double
     {
-        14 * Scale
+        14 * (IconScale ?? Scale)
     }
 
     ///How close in points a tap must be to a marker to select it.
     var TapRadius: Double
     {
-        20 * Scale
+        20 * (IconScale ?? Scale)
     }
 
     ///Height reserved at the bottom for the two-line readout; the radar sits in the space above it.
@@ -245,10 +257,12 @@ struct RadarContent: View
                     CenterColor: CenterColor,
                     Unit: Unit,
                     FontScale: Scale,
-                    ClampsToRange: CropToRange || PointTarget != nil,
+                    ClampsToRange: CropToRange && PointTarget == nil,
                     ClipsToView: ClipsToView,
                     CardinalWeight: CardinalWeight,
                     ArrowTarget: PointTarget,
+                    ArrowScale: ArrowScale,
+                    ArrowWidthScale: ArrowWidthScale,
                     OverMap: MapCenter != nil)
             //Offset rather than padding: the radar moves by the full amount and the readout below stays put.
             .offset(y: TopInset)

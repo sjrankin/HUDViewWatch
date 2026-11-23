@@ -12,6 +12,7 @@ struct SettingsView: View
 {
     @Environment(RadarSettings.self) private var Settings
     @Environment(WatchLink.self) private var Link
+    @Environment(OrientationSender.self) private var Sender
 
     var body: some View
     {
@@ -129,6 +130,23 @@ struct SettingsView: View
                 footer:
                 {
                     Text("Shows them on the camera view like places, from the time and where you are. Below the horizon they are faded: you would be looking through the Earth. A constellation is marked at its middle. Other constellations: Carina, Ophiuchus, Orion, the Big Dipper, the Little Dipper and the Southern Cross. Galaxies: Andromeda and the Large and Small Magellanic Clouds.")
+                }
+                Section
+                {
+                    Toggle("Send to Mac", isOn: $Bound.SendToMac)
+                    if Settings.SendToMac
+                    {
+                        Text(Sender.Status.Description)
+                        Text("Frames sent: \(Sender.SentCount)")
+                    }
+                }
+                header:
+                {
+                    Text("Mac")
+                }
+                footer:
+                {
+                    Text("Sends your location, altitude, heading and motion to HUDViewMac running on a Mac on the same Wi-Fi network, twenty times a second. Nothing is sent when this is off. If the Mac is not there, the phone keeps looking for it quietly.")
                 }
                 Section("Apple Watch")
                 {

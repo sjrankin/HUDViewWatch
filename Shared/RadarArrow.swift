@@ -49,16 +49,28 @@ struct RadarArrow: View
     let PlotRadius: Double
     ///The diameter of a place's marker, which the arrow and the label are sized from.
     let IconSize: Double
+    ///How much larger than standard to draw the arrow (1 is the iPhone and watch size). The shaft and the outline grow a little more
+    ///than the length, so a larger arrow is also bolder.
+    var Scale: Double = 1.0
+    ///The size of the area the radar is drawn in, or `.zero` if not known. The arrow is cut short so that its head stays inside it
+    ///when the place is off the screen (zoomed in).
+    var ViewSize: CGSize = .zero
+    ///How much to narrow (below 1) or widen the arrow and its head, without changing its length.
+    var WidthScale: Double = 1.0
 
     var body: some View
     {
         let Angle = RadarGuide.RelativeBearing(Bearing: Bearing, Heading: Heading)
         //Stop a little short of the circle so the arrow points at it rather than covering it.
+        //Room for the arrow along its direction: to the edge of the view, less a margin for the head's outline.
+        let Room = ViewSize == .zero ? Double.infinity
+            : RadarGuide.DistanceToEdge(Angle: Angle, HalfWidth: ViewSize.width / 2, HalfHeight: ViewSize.height / 2) - IconSize * 0.5
         let Length = RadarGuide.ArrowLength(Distance: Distance, RangeDistance: RangeDistance, PlotRadius: PlotRadius,
-                                            Clearance: IconSize * 0.7, MinimumLength: IconSize)
-        let Width = IconSize * 1.3
-        let Head = IconSize * 1.0
-        let Shaft = IconSize * 0.38
+                                            Clearance: IconSize * 0.7, MinimumLength: IconSize * Scale, MaxLength: Room)
+        let Bold = Scale > 1.0 ? 1.25 : 1.0
+        let Width = IconSize * 1.3 * Scale * WidthScale
+        let Head = IconSize * 1.0 * Scale
+        let Shaft = IconSize * 0.38 * Scale * Bold * WidthScale
         ZStack
         {
             ZStack
@@ -66,9 +78,9 @@ struct RadarArrow: View
                 //A white outline outside a black one: the black sets the yellow off, and the white sets the arrow off the dark
                 //background. The fill goes on last so only the outer halves of the strokes show.
                 RadarArrowShape(HeadLength: Head, ShaftWidth: Shaft)
-                    .stroke(.white, style: StrokeStyle(lineWidth: IconSize * 0.3, lineJoin: .round))
+                    .stroke(.white, style: StrokeStyle(lineWidth: IconSize * 0.3 * Bold, lineJoin: .round))
                 RadarArrowShape(HeadLength: Head, ShaftWidth: Shaft)
-                    .stroke(.black, style: StrokeStyle(lineWidth: IconSize * 0.15, lineJoin: .round))
+                    .stroke(.black, style: StrokeStyle(lineWidth: IconSize * 0.15 * Bold, lineJoin: .round))
                 RadarArrowShape(HeadLength: Head, ShaftWidth: Shaft)
                     .fill(.yellow)
             }
@@ -85,9 +97,13 @@ struct RadarArrow: View
                 .padding(.horizontal, IconSize * 0.4)
                 .padding(.vertical, IconSize * 0.12)
                 .background(.black.opacity(0.55), in: .capsule)
+                //Never wrapped: the frame below is tiny, and would otherwise squeeze the degree sign onto a second line.
+                .fixedSize()
                 .offset(RadarGuide.LabelOffset(Angle: Angle, HalfSize: CGSize(width: IconSize * 1.3, height: IconSize * 0.55),
                                                Clearance: IconSize * 0.55))
         }
+        //Takes no room in the layout, however long the arrow is: a long one made the radar taller and pushed the slider off the screen.
+        .frame(width: 1, height: 1)
         .allowsHitTesting(false)
     }
 }

@@ -21,21 +21,44 @@ enum RadarGuide
         return Wrapped < 0.0 ? Wrapped + 360.0 : Wrapped
     }
 
-    ///The length in points of the arrow, from the center of the radar to just short of the place's circle. A place beyond the outer ring
-    ///is drawn on it, so the arrow never runs longer than the ring's radius.
+    ///The farthest, in outer-ring radii from the center, that the arrow or the place's circle is drawn. Beyond this the place is far off
+    ///the screen whatever the shape of the window, so there is no point in a longer arrow (a huge frame is slow to draw).
+    static let MaxRadii = 20.0
+
+    ///The length in points of the arrow, from the center of the radar to just short of the place's circle. The place is drawn at its
+    ///true distance, so when it lies beyond the outer ring (or off the screen, zoomed in) the arrow runs past the ring, up to
+    ///`MaxRadii` ring radii.
     ///- Parameter Distance: Meters to the place.
     ///- Parameter RangeDistance: Meters at the outer ring.
     ///- Parameter PlotRadius: Points from the center to the outer ring.
     ///- Parameter Clearance: Points to stop short of the circle's center (its radius and a gap).
     ///- Parameter MinimumLength: The shortest the arrow is drawn, so that a place at the center still has one.
-    static func ArrowLength(Distance: Double, RangeDistance: Double, PlotRadius: Double, Clearance: Double, MinimumLength: Double) -> Double
+    ///- Parameter MaxLength: The longest the arrow may be, so that its head stays on the screen when the place is off it; see
+    ///  `DistanceToEdge`. The minimum length wins over it.
+    static func ArrowLength(Distance: Double, RangeDistance: Double, PlotRadius: Double, Clearance: Double, MinimumLength: Double,
+                            MaxLength: Double = .infinity) -> Double
     {
         guard RangeDistance > 0 else
         {
             return MinimumLength
         }
-        let Ratio = min(max(Distance / RangeDistance, 0.0), 1.0)
-        return max(PlotRadius * Ratio - Clearance, MinimumLength)
+        let Ratio = min(max(Distance / RangeDistance, 0.0), MaxRadii)
+        let Natural = max(PlotRadius * Ratio - Clearance, MinimumLength)
+        return max(min(Natural, MaxLength), MinimumLength)
+    }
+
+    ///How far from the center of a rectangle a ray in a direction leaves it.
+    ///- Parameter Angle: The direction in degrees clockwise from the top.
+    ///- Parameter HalfWidth: Half the rectangle's width.
+    ///- Parameter HalfHeight: Half the rectangle's height.
+    static func DistanceToEdge(Angle: Double, HalfWidth: Double, HalfHeight: Double) -> Double
+    {
+        let Radians = Angle * .pi / 180.0
+        let AcrossX = abs(sin(Radians))
+        let AcrossY = abs(cos(Radians))
+        let ToSide = AcrossX > 1e-9 ? HalfWidth / AcrossX : Double.infinity
+        let ToTop = AcrossY > 1e-9 ? HalfHeight / AcrossY : Double.infinity
+        return min(ToSide, ToTop)
     }
 
     ///Where the middle of the bearing label goes relative to the center of the radar: straight behind the arrow's base, on the

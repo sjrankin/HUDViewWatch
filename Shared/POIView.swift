@@ -48,9 +48,13 @@ struct POIView: View
     var ClipsToView: Bool = false
     ///Weight of the cardinal letters; bold on the watch, heavier on the iPhone.
     var CardinalWeight: Font.Weight = .bold
-    ///The place the pointing mode's arrow points at, or `nil` outside the mode. It is also the only place in `POIs`, and is drawn on the
-    ///outer ring if it lies beyond it.
+    ///The place the pointing mode's arrow points at, or `nil` outside the mode. It is also the only place in `POIs`, and is drawn at its
+    ///true distance, so when it lies beyond the outer ring (or off the screen, zoomed in) it is not shown, only the arrow is.
     var ArrowTarget: POIFinder.VisiblePOI? = nil
+    ///How much larger than standard the arrow is drawn.
+    var ArrowScale: Double = 1.0
+    ///How much narrower (below 1) the arrow is drawn than standard.
+    var ArrowWidthScale: Double = 1.0
     ///The size of the tap layer, to find the ring center in a tap.
     @State private var TapSize = CGSize.zero
     ///True when a map is drawn behind the radar (by `RadarContent`): the labels get smaller and everything a dark halo.
@@ -142,10 +146,15 @@ struct POIView: View
                     //Each letter is upright at its own angle, so its bottom always points to the center.
                     //offset doesn't move the layout frame, so the center anchor is the ring center.
                     Text(Cardinal.Letter)
+                        #if os(watchOS)
                         .font(.caption2)
                         .fontWeight(CardinalWeight)
                         //Grows with FontScale so the letters stay in proportion to the rings on a bigger screen.
                         .scaleEffect(CardinalScale * FontScale)
+                        #else
+                        //Drawn at its real size rather than enlarged, which made the letters blurry (the Mac, over a map).
+                        .font(.system(size: 11 * CardinalScale * FontScale, weight: CardinalWeight))
+                        #endif
                         .foregroundStyle(CardinalColor)
                         .offset(y: LabelRadius * -1)
                         .rotationEffect(.degrees(Cardinal.Angle))
@@ -156,7 +165,7 @@ struct POIView: View
             if let ArrowTarget
             {
                 RadarArrow(Bearing: ArrowTarget.Bearing, Heading: Heading, Distance: ArrowTarget.Distance,
-                           RangeDistance: RangeDistance, PlotRadius: PlotRadius, IconSize: IconSize)
+                           RangeDistance: RangeDistance, PlotRadius: PlotRadius, IconSize: IconSize, Scale: ArrowScale, ViewSize: TapSize, WidthScale: ArrowWidthScale)
             }
             //Markers sit on the same rotating dial as the cardinals but stay upright.
             ZStack

@@ -1,0 +1,454 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		065DE75451E93063BF85F6AE /* OrientationReceiver.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4C32CA97AD125F89A28C75C /* OrientationReceiver.swift */; };
+		159A75F18554D383E10780DF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DBA5898F2FBEFA953746F557 /* Assets.xcassets */; };
+		1992305B5AC4C227B9FA5A45 /* PlaceSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A76D2EE4D3FF24251219506 /* PlaceSelection.swift */; };
+		1C0A50DA283861C65EA50DAB /* ReadoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0A20513F800E2753414882 /* ReadoutView.swift */; };
+		265E9C6711599368C5A9DC83 /* RadarGuide.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ECADE0BA66D6AAE67D11790 /* RadarGuide.swift */; };
+		26FE58C39C3BEDF51A968CBF /* ConnectionBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 107CEE216DF74611DCEAF039 /* ConnectionBanner.swift */; };
+		356AD8018A6FED14DF09126D /* POIMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA59A3134E1FF2C250F9D73E /* POIMarker.swift */; };
+		41CAF2FFF5E9AC1F42AE39FE /* DistanceFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE4FECE40203C0F9608B1736 /* DistanceFormat.swift */; };
+		4D6CB4EAB7142428DC56DDA4 /* POI.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4EBD909DEBFA4E70F1AE3BA /* POI.swift */; };
+		503DC1E2BC3C595653F68332 /* PointingSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 688FCCAE12B33CC52DD7B665 /* PointingSelection.swift */; };
+		52E887D3A5F1808F2106351F /* POIFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A366EEFF47EB25C56C5DF5C8 /* POIFinder.swift */; };
+		671D88B49BF2714CDE04CE4D /* RadarDeclutter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25F32A074F8202DD384538D7 /* RadarDeclutter.swift */; };
+		6AADC5BF92B40AE3FAD77DF2 /* RadarFit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C88AE936C03A2993F44FE5 /* RadarFit.swift */; };
+		6B01D754EC5D3E9F4D370234 /* HUDViewMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CCBB0D66F054CC65D066ABB /* HUDViewMacApp.swift */; };
+		6C6E51C370D2396A5D03AD25 /* POIStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55267912B997B9564DDC6BF2 /* POIStore.swift */; };
+		6FAD1E7EC973C15A298125B9 /* RadarArrow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03F8EE5C3D67B54431EDA51 /* RadarArrow.swift */; };
+		82BD0FEE0AE88D0B754D3466 /* PinchZoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F9CD5DEA7BE91A003349D6A /* PinchZoom.swift */; };
+		891AFFFAFFC2BAACF6E61D53 /* MacRadarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D0BD640A35BBBCB0AADE6B8 /* MacRadarView.swift */; };
+		8C2F3366F6E1BA4CEC55F00D /* ScrollZoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F82203D8BD28C280013068 /* ScrollZoom.swift */; };
+		906BA617C88AED8B3792F559 /* PointingToggle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6E58A2631AA63DB0A02DEBB /* PointingToggle.swift */; };
+		98E5E46332E6B3445D36DF7E /* DistanceUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC4A341A4AF6A44716A1B59 /* DistanceUnit.swift */; };
+		9B03DA18C0B5DCF89A3E0334 /* RadarSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2EFB769FE5627DE95DECB6 /* RadarSettings.swift */; };
+		A3BF77E7C679C5EFB63444EC /* RadarMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D66A7808EE51D72260D475 /* RadarMapView.swift */; };
+		B6A64AFF9ECDA54C888715BB /* HeadingFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92880D995229219CEDF404C6 /* HeadingFormat.swift */; };
+		BAB0AEF0395C49D9D1189BCB /* RadarContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF571557E5DEDC4CFF23EF6 /* RadarContent.swift */; };
+		BBBF5F2139ABC78C9008DBE0 /* HeadingProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24F145C928FBD933E2EDF156 /* HeadingProvider.swift */; };
+		BBEF87893F87AC53CF9BD608 /* DataPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5076D52C532F97D4CDB8AC4F /* DataPanel.swift */; };
+		C6270F5D1E18408CDFA4920B /* StatusLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = E87BCB3AFF189426D19AAFF7 /* StatusLine.swift */; };
+		C691E39696B82885496ABD78 /* POIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AEE88095051F6FADD1567A8 /* POIView.swift */; };
+		F6A4CB5B5A532DDE5776C51A /* OrientationFrame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CBD364AFA52689ECB9807DF /* OrientationFrame.swift */; };
+		F756CB060A3AEBAE92C1BCF5 /* POIData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61DFAA0CFDE7C99502037F65 /* POIData.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		107CEE216DF74611DCEAF039 /* ConnectionBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionBanner.swift; sourceTree = "<group>"; };
+		1F9CD5DEA7BE91A003349D6A /* PinchZoom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinchZoom.swift; sourceTree = "<group>"; };
+		24F145C928FBD933E2EDF156 /* HeadingProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadingProvider.swift; sourceTree = "<group>"; };
+		25F32A074F8202DD384538D7 /* RadarDeclutter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadarDeclutter.swift; sourceTree = "<group>"; };
+		2BF571557E5DEDC4CFF23EF6 /* RadarContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadarContent.swift; sourceTree = "<group>"; };
+		3A76D2EE4D3FF24251219506 /* PlaceSelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceSelection.swift; sourceTree = "<group>"; };
+		3B2EFB769FE5627DE95DECB6 /* RadarSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadarSettings.swift; sourceTree = "<group>"; };
+		3CBD364AFA52689ECB9807DF /* OrientationFrame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrientationFrame.swift; sourceTree = "<group>"; };
+		3ECADE0BA66D6AAE67D11790 /* RadarGuide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadarGuide.swift; sourceTree = "<group>"; };
+		4174ACDB67C6D5737CC30FA3 /* HUDViewMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HUDViewMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		43D66A7808EE51D72260D475 /* RadarMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadarMapView.swift; sourceTree = "<group>"; };
+		4CCBB0D66F054CC65D066ABB /* HUDViewMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HUDViewMacApp.swift; sourceTree = "<group>"; };
+		5076D52C532F97D4CDB8AC4F /* DataPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataPanel.swift; sourceTree = "<group>"; };
+		55267912B997B9564DDC6BF2 /* POIStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = POIStore.swift; sourceTree = "<group>"; };
+		61DFAA0CFDE7C99502037F65 /* POIData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = POIData.swift; sourceTree = "<group>"; };
+		65C88AE936C03A2993F44FE5 /* RadarFit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadarFit.swift; sourceTree = "<group>"; };
+		688FCCAE12B33CC52DD7B665 /* PointingSelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PointingSelection.swift; sourceTree = "<group>"; };
+		6AEE88095051F6FADD1567A8 /* POIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = POIView.swift; sourceTree = "<group>"; };
+		7D0BD640A35BBBCB0AADE6B8 /* MacRadarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacRadarView.swift; sourceTree = "<group>"; };
+		92880D995229219CEDF404C6 /* HeadingFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadingFormat.swift; sourceTree = "<group>"; };
+		9FC4A341A4AF6A44716A1B59 /* DistanceUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceUnit.swift; sourceTree = "<group>"; };
+		A366EEFF47EB25C56C5DF5C8 /* POIFinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = POIFinder.swift; sourceTree = "<group>"; };
+		AD0A20513F800E2753414882 /* ReadoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadoutView.swift; sourceTree = "<group>"; };
+		C03F8EE5C3D67B54431EDA51 /* RadarArrow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadarArrow.swift; sourceTree = "<group>"; };
+		C4C32CA97AD125F89A28C75C /* OrientationReceiver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrientationReceiver.swift; sourceTree = "<group>"; };
+		DBA5898F2FBEFA953746F557 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		E2F82203D8BD28C280013068 /* ScrollZoom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollZoom.swift; sourceTree = "<group>"; };
+		E4EBD909DEBFA4E70F1AE3BA /* POI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = POI.swift; sourceTree = "<group>"; };
+		E6E58A2631AA63DB0A02DEBB /* PointingToggle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PointingToggle.swift; sourceTree = "<group>"; };
+		E87BCB3AFF189426D19AAFF7 /* StatusLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusLine.swift; sourceTree = "<group>"; };
+		EA59A3134E1FF2C250F9D73E /* POIMarker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = POIMarker.swift; sourceTree = "<group>"; };
+		EE4FECE40203C0F9608B1736 /* DistanceFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceFormat.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		10D4DE656E95CE5E8B00244E /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				EE4FECE40203C0F9608B1736 /* DistanceFormat.swift */,
+				9FC4A341A4AF6A44716A1B59 /* DistanceUnit.swift */,
+				92880D995229219CEDF404C6 /* HeadingFormat.swift */,
+				3CBD364AFA52689ECB9807DF /* OrientationFrame.swift */,
+				1F9CD5DEA7BE91A003349D6A /* PinchZoom.swift */,
+				3A76D2EE4D3FF24251219506 /* PlaceSelection.swift */,
+				E4EBD909DEBFA4E70F1AE3BA /* POI.swift */,
+				61DFAA0CFDE7C99502037F65 /* POIData.swift */,
+				A366EEFF47EB25C56C5DF5C8 /* POIFinder.swift */,
+				EA59A3134E1FF2C250F9D73E /* POIMarker.swift */,
+				688FCCAE12B33CC52DD7B665 /* PointingSelection.swift */,
+				E6E58A2631AA63DB0A02DEBB /* PointingToggle.swift */,
+				55267912B997B9564DDC6BF2 /* POIStore.swift */,
+				6AEE88095051F6FADD1567A8 /* POIView.swift */,
+				C03F8EE5C3D67B54431EDA51 /* RadarArrow.swift */,
+				2BF571557E5DEDC4CFF23EF6 /* RadarContent.swift */,
+				25F32A074F8202DD384538D7 /* RadarDeclutter.swift */,
+				65C88AE936C03A2993F44FE5 /* RadarFit.swift */,
+				3ECADE0BA66D6AAE67D11790 /* RadarGuide.swift */,
+				43D66A7808EE51D72260D475 /* RadarMapView.swift */,
+				3B2EFB769FE5627DE95DECB6 /* RadarSettings.swift */,
+				AD0A20513F800E2753414882 /* ReadoutView.swift */,
+				E87BCB3AFF189426D19AAFF7 /* StatusLine.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		8D2118EEC2785C4362581047 = {
+			isa = PBXGroup;
+			children = (
+				D80D5CD32C49516879D1D40A /* HUDViewWatch */,
+				A3CEF1D6CEA5EBF9DA9D876D /* Sources */,
+				EC3420ECFC97CF4A2F8C96A0 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A3CEF1D6CEA5EBF9DA9D876D /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				DBA5898F2FBEFA953746F557 /* Assets.xcassets */,
+				107CEE216DF74611DCEAF039 /* ConnectionBanner.swift */,
+				5076D52C532F97D4CDB8AC4F /* DataPanel.swift */,
+				24F145C928FBD933E2EDF156 /* HeadingProvider.swift */,
+				4CCBB0D66F054CC65D066ABB /* HUDViewMacApp.swift */,
+				7D0BD640A35BBBCB0AADE6B8 /* MacRadarView.swift */,
+				C4C32CA97AD125F89A28C75C /* OrientationReceiver.swift */,
+				E2F82203D8BD28C280013068 /* ScrollZoom.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		D80D5CD32C49516879D1D40A /* HUDViewWatch */ = {
+			isa = PBXGroup;
+			children = (
+				10D4DE656E95CE5E8B00244E /* Shared */,
+			);
+			name = HUDViewWatch;
+			path = ..;
+			sourceTree = "<group>";
+		};
+		EC3420ECFC97CF4A2F8C96A0 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4174ACDB67C6D5737CC30FA3 /* HUDViewMac.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4610CD5C237834E1EFF146BB /* HUDViewMac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9650FED602FCCC0AA4D95452 /* Build configuration list for PBXNativeTarget "HUDViewMac" */;
+			buildPhases = (
+				5FBD65A700F9272C4B56A7BA /* Sources */,
+				631398B2CCF2A4EE5DE042E7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HUDViewMac;
+			packageProductDependencies = (
+			);
+			productName = HUDViewMac;
+			productReference = 4174ACDB67C6D5737CC30FA3 /* HUDViewMac.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2549B07BB5DA8D8DEDA530EF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					4610CD5C237834E1EFF146BB = {
+						DevelopmentTeam = 4BB235M4GL;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 59C03A4559147B4285987022 /* Build configuration list for PBXProject "HUDViewMac" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 8D2118EEC2785C4362581047;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = EC3420ECFC97CF4A2F8C96A0 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4610CD5C237834E1EFF146BB /* HUDViewMac */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		631398B2CCF2A4EE5DE042E7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				159A75F18554D383E10780DF /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5FBD65A700F9272C4B56A7BA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				26FE58C39C3BEDF51A968CBF /* ConnectionBanner.swift in Sources */,
+				BBEF87893F87AC53CF9BD608 /* DataPanel.swift in Sources */,
+				41CAF2FFF5E9AC1F42AE39FE /* DistanceFormat.swift in Sources */,
+				98E5E46332E6B3445D36DF7E /* DistanceUnit.swift in Sources */,
+				6B01D754EC5D3E9F4D370234 /* HUDViewMacApp.swift in Sources */,
+				B6A64AFF9ECDA54C888715BB /* HeadingFormat.swift in Sources */,
+				BBBF5F2139ABC78C9008DBE0 /* HeadingProvider.swift in Sources */,
+				891AFFFAFFC2BAACF6E61D53 /* MacRadarView.swift in Sources */,
+				F6A4CB5B5A532DDE5776C51A /* OrientationFrame.swift in Sources */,
+				065DE75451E93063BF85F6AE /* OrientationReceiver.swift in Sources */,
+				4D6CB4EAB7142428DC56DDA4 /* POI.swift in Sources */,
+				F756CB060A3AEBAE92C1BCF5 /* POIData.swift in Sources */,
+				52E887D3A5F1808F2106351F /* POIFinder.swift in Sources */,
+				356AD8018A6FED14DF09126D /* POIMarker.swift in Sources */,
+				6C6E51C370D2396A5D03AD25 /* POIStore.swift in Sources */,
+				C691E39696B82885496ABD78 /* POIView.swift in Sources */,
+				82BD0FEE0AE88D0B754D3466 /* PinchZoom.swift in Sources */,
+				1992305B5AC4C227B9FA5A45 /* PlaceSelection.swift in Sources */,
+				503DC1E2BC3C595653F68332 /* PointingSelection.swift in Sources */,
+				906BA617C88AED8B3792F559 /* PointingToggle.swift in Sources */,
+				6FAD1E7EC973C15A298125B9 /* RadarArrow.swift in Sources */,
+				BAB0AEF0395C49D9D1189BCB /* RadarContent.swift in Sources */,
+				671D88B49BF2714CDE04CE4D /* RadarDeclutter.swift in Sources */,
+				6AADC5BF92B40AE3FAD77DF2 /* RadarFit.swift in Sources */,
+				265E9C6711599368C5A9DC83 /* RadarGuide.swift in Sources */,
+				A3BF77E7C679C5EFB63444EC /* RadarMapView.swift in Sources */,
+				9B03DA18C0B5DCF89A3E0334 /* RadarSettings.swift in Sources */,
+				1C0A50DA283861C65EA50DAB /* ReadoutView.swift in Sources */,
+				8C2F3366F6E1BA4CEC55F00D /* ScrollZoom.swift in Sources */,
+				C6270F5D1E18408CDFA4920B /* StatusLine.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		24596E0CF87A169E29300DFB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 4BB235M4GL;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		2C1B270738139B4C7FB8B133 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Support/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Iroiro.HUDViewMac;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		6CD32F4EC847F51424331394 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 4BB235M4GL;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		D568E722CE9F18E6149E2890 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Support/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Iroiro.HUDViewMac;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		59C03A4559147B4285987022 /* Build configuration list for PBXProject "HUDViewMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				24596E0CF87A169E29300DFB /* Debug */,
+				6CD32F4EC847F51424331394 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		9650FED602FCCC0AA4D95452 /* Build configuration list for PBXNativeTarget "HUDViewMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D568E722CE9F18E6149E2890 /* Debug */,
+				2C1B270738139B4C7FB8B133 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2549B07BB5DA8D8DEDA530EF /* Project object */;
+}

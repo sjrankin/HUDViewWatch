@@ -17,6 +17,8 @@ struct HUDViewWatchApp: App
     @State private var Settings: RadarSettings
     ///The place tapped on the camera view or the radar.
     @State private var Selection = PlaceSelection()
+    ///Sends the phone's position and heading to HUDViewMac while "Send to Mac" is on.
+    @State private var Sender = OrientationSender()
 
     init()
     {
@@ -36,6 +38,7 @@ struct HUDViewWatchApp: App
                 .environment(Link)
                 .environment(Settings)
                 .environment(Selection)
+                .environment(Sender)
         }
     }
 }

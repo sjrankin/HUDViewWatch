@@ -5,7 +5,7 @@ Stuart Rankin
 HUDViewWatch shows you what is around you and which way it lies. On an iPhone, hold the phone up and named places (cities, mountains,
 lakes, bridges, your own favorites) appear in the camera view exactly where they are, each with its distance. On an Apple Watch, the same
 places appear as a radar around you. Pick one place and either device can track it with an arrow. If you turn them on, the iPhone can also
-show the Sun, the Moon, the constellations and some galaxies, where they are in the sky right now.
+show the Sun, the Moon, the constellations and some galaxies, where they are in the sky right now. A companion macOS program is also provided that receives location and header updates (among other data) and displays the view on the Mac.
 
 A *point of interest* (POI, or just "place" in the apps) is anything with a name and a spot on the map. The app ships with a set of
 built-in places for testing, and you can add your own.
@@ -18,6 +18,8 @@ built-in places for testing, and you can add your own.
 <img src="Images/HUDViewWatchWatchTest.gif" alt="HUDViewWatch running on an Apple Watch: places on a radar." width="400">
 
 *On the Apple Watch: the same places on a radar. The Digital Crown zooms. The radar turns as you turn.*
+
+<img src="Images/HUDViewMacStatic.png" alt="HUDViewMac view mirroring orientaiton and location on a Mac." width="600">
 
 ## Getting started
 1. Install both the iPhone app and its watch app.
@@ -101,6 +103,11 @@ The watch shows the radar full screen. Turn the Digital Crown to zoom. The top o
 
 The watch has the built-in places, and your own places, hidden places, range and units are sent to it from the iPhone (see
 [Places](#places)). The watch keeps working with the last information it received. Settings are changed on the iPhone only.
+
+## Macintosh
+A companion macOS program reads data sent by the iOS app. (The user can enable or disable this feature on the phone.) Only the radar view is supported on the Mac but it has pointer mode as well as map backgrounds as options.
+
+<img src="Images/HUDViewMacDemo.gif" alt="HUDViewMac running along with the data source from the app on the iPhone." width="600">
 
 ## Pointer mode
 Pointer mode tracks one place you choose with an arrow, and keeps tracking it as you move. The control that turns it on is called
@@ -260,3 +267,16 @@ reading the interface orientation. Route waypoints from HUDViewUI are not includ
   `SkyObjects` for the list of what to show).
 - `HUDViewWatch Watch App/` is the watch screen.
 - `HUDViewWatchTests/` holds the unit tests (radar, store, settings, HUD math, sky, units, pointer mode).
+
+
+## Mac radar (HUDViewMac)
+`HUDViewMac/` is a separate Xcode project for a Mac app that shows the radar from an iPhone's live data.
+
+1. On the iPhone, open **Settings** and turn on **Send to Mac** (off by default). Allow the Local Network prompt.
+2. Open `HUDViewMac/HUDViewMac.xcodeproj`, run it on a Mac on the same Wi-Fi network, and allow the Local Network prompt.
+3. The Mac radar follows the phone. The side panel shows the numbers received.
+
+The phone sends a frame twenty times a second: GPS location and altitude, heading, and device motion, each frame stamped with the time it was made. The Mac finds
+the phone through Bonjour (`_hudview._udp`) and receives UDP datagrams, so it never waits on the phone: with no data the radar stays up and says so after three
+seconds. A frame older than one already used is ignored. The frame layout is `Shared/OrientationFrame.swift`; new fields can be added there as optional values.
+The project file is generated from `HUDViewMac/project.yml` with `xcodegen generate`.

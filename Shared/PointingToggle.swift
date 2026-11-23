@@ -14,11 +14,13 @@ struct PointingToggle: View
     @Binding var IsOn: Bool
     ///The width and height of the disc.
     let Size: Double
+    ///True for a larger arrow in the disc (the Mac).
+    var LargeGlyph: Bool = false
 
     var body: some View
     {
         Toggle("Track Selected Place", systemImage: "arrow.up.forward", isOn: $IsOn)
-            .toggleStyle(PointingToggleStyle(Size: Size))
+            .toggleStyle(PointingToggleStyle(Size: Size, LargeGlyph: LargeGlyph))
     }
 }
 
@@ -26,6 +28,7 @@ struct PointingToggle: View
 struct PointingToggleStyle: ToggleStyle
 {
     let Size: Double
+    var LargeGlyph: Bool = false
 
     func makeBody(configuration Configuration: Configuration) -> some View
     {
@@ -36,7 +39,7 @@ struct PointingToggleStyle: ToggleStyle
         label:
         {
             Image(systemName: "arrow.up.forward")
-                .font(.title3.bold())
+                .font(LargeGlyph ? .largeTitle.bold() : .title3.bold())
                 .foregroundStyle(Configuration.isOn ? Color.black : Color.white)
                 .frame(width: Size, height: Size)
                 .background(Configuration.isOn ? Color.yellow : Color.gray.opacity(0.45), in: .circle)

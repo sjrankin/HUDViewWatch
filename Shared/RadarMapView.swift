@@ -57,6 +57,16 @@ struct RadarMapView: View
             .frame(width: Size.width, height: Size.height)
             .rotationEffect(.degrees(Residual))
             .allowsHitTesting(false)
+        #elseif os(macOS)
+        //On the Mac the map is turned by the camera, so up is where the phone points, and the text stays upright and sharp.
+        Map(position: .constant(.camera(MapCamera(centerCoordinate: Center, distance: CameraDistance, heading: Heading, pitch: 0))),
+            interactionModes: [])
+        {
+        }
+        .mapStyle(.standard(elevation: .flat))
+        .mapControlVisibility(.hidden)
+        .frame(width: Size.width, height: Size.height)
+        .allowsHitTesting(false)
         #else
         //The watch's map ignores the camera heading, so it stays north-up and the view is turned like the radar's own dial (the
         //cardinal letters), which puts the map's north exactly under the radar's "N".

@@ -12,6 +12,8 @@ struct RootView: View
 {
     @Environment(POIStore.self) private var Store
     @Environment(WatchLink.self) private var Link
+    @Environment(RadarSettings.self) private var Settings
+    @Environment(OrientationSender.self) private var Sender
     ///One compass for both tabs, so the editor's "Use My Location" and the radar share the same fix.
     @StateObject private var Compass = HeadingProvider()
 
@@ -35,6 +37,15 @@ struct RootView: View
             {
                 SettingsView()
             }
+        }
+        //The "Send to Mac" setting starts and stops the sender, including at launch.
+        .onAppear
+        {
+            Sender.SetEnabled(Settings.SendToMac)
+        }
+        .onChange(of: Settings.SendToMac)
+        {
+            Sender.SetEnabled(Settings.SendToMac)
         }
         //Every change to the list goes to the watch.
         .onChange(of: Store.Custom)

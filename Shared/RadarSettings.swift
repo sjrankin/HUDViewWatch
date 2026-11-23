@@ -121,6 +121,16 @@ final class RadarSettings
         }
     }
 
+    ///True to send the phone's location, heading and motion to a Mac running HUDViewMac on the same network (iPhone only; see
+    ///`OrientationSender`). Off by default.
+    var SendToMac: Bool
+    {
+        didSet
+        {
+            Defaults.set(SendToMac, forKey: RadarSettings.SendToMacKey)
+        }
+    }
+
     ///The maximum range in meters.
     var MaxDistance: Double
     {
@@ -140,6 +150,7 @@ final class RadarSettings
     nonisolated static let OtherConstellationsKey = "ShowOtherConstellations"
     nonisolated static let GalaxiesKey = "ShowGalaxies"
     nonisolated static let MapKey = "ShowMapBackground"
+    nonisolated static let SendToMacKey = "SendToMac"
     nonisolated static let MarkerLimits = 3 ... 30
     nonisolated static let DefaultMarkerLimit = 10
 
@@ -159,6 +170,7 @@ final class RadarSettings
         ShowOtherConstellations = Defaults.object(forKey: RadarSettings.OtherConstellationsKey) as? Bool ?? false
         ShowGalaxies = Defaults.object(forKey: RadarSettings.GalaxiesKey) as? Bool ?? false
         ShowMap = Defaults.object(forKey: RadarSettings.MapKey) as? Bool ?? false
+        SendToMac = Defaults.object(forKey: RadarSettings.SendToMacKey) as? Bool ?? false
     }
 
     ///Forces a range into `RangeLimits` and onto a multiple of `RangeStep`; a value that is not a number gives the default.
